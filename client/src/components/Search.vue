@@ -19,11 +19,19 @@ import M from 'materialize-css';
 
 const toast = useToast();
 
+const props = defineProps({
+  languageList: {
+    type: Array,
+    required: true
+  }
+});
+
 const searchTerm = ref('');
 const language = ref('en');
 const message = ref('');
+const languagesDict = languages;
 
-const emit = defineEmits(['updateWords']);
+const emit = defineEmits(['updateWords', 'updateLanguageList']);
 
 const searchPost = async () => {
   if (searchTerm.value === '') {
@@ -50,7 +58,6 @@ const searchPost = async () => {
 onMounted(() => {
   var elems = document.querySelectorAll('select');
   var instances = M.FormSelect.init(elems);
-
 });
 </script>
 

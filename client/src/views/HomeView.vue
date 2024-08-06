@@ -1,7 +1,7 @@
 <template>
   <Add @fetchList="fetchList" />
   <div id="vue_app" class="container">
-    <Search @updateWords="updateWords"  />
+    <Search :languageList="languageList" @updateWords="updateWords" @updateLanguageList="updateLanguageList" />
     <button class="btn" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
     <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
@@ -125,6 +125,11 @@ const sortList = async (sortField) => {
   }
 };
 
+
+const updateLanguageList = (newList) => {
+  languageList.value = newList;
+};
+
 const viewWord = async () => {
   if (!languageList.value.includes(viewOption.value)) {
     languageList.value.push(viewOption.value);
@@ -213,7 +218,8 @@ const goToPage = async (page) => {
 
 const downloadCSV = async () => {
   try {
-    const response = await BackendAPI.downloadCSV();
+    const languagesQuery = languageList.value.join(',');
+    const response = await BackendAPI.downloadCSV(languagesQuery);
     if (response && response.data) {
       const csvContent = response.data;
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

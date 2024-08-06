@@ -236,7 +236,6 @@ router.get("/export_csv", async (req, res) => {
       return res.status(404).json({ message: "No words found" });
     }
 
-    const fields = ["en", "de", "fr", "vi", "others"];
     const opts = { fields };
 
     const parser = new Parser(opts);
