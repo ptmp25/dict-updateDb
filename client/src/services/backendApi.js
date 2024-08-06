@@ -81,15 +81,6 @@ export default {
       throw error;
     }
   },
-  // async translateText(text, to) {
-  //   try {
-  //     const response = await apiClient.post("/translate", { text, to });
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error("Error translating text:", error);
-  //     throw error;
-  //   }
-  // },
   async saveWord(wordData) {
     try {
       console.log("wordData", wordData);

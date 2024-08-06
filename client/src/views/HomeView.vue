@@ -17,7 +17,8 @@
     <table>
       <thead>
         <tr>
-          <th v-for="code in languageList" :key="code">{{ languagesDict[code] }}</th>
+          <th v-for="(code, index) in languageList" :key="code">{{ languagesDict[code] }}
+          <button @click="removeCode(index)" v-if="languageList.length > 2">-</button></th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -34,7 +35,7 @@
           <td>
             <button class="button-box" @click="showDetails(word.id)">Details</button>
             <button class="button-box" @click="editWord(word.id)">Edit</button>
-            <button class="button-box" @click="deleteWord(word)">Delete</button>
+            <button class="button-box" @click="deleteWord(word.id)">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -157,6 +158,9 @@ const editWord = async (wordId) => {
 
 // Function to delete a word by ID
 const deleteWord = async (wordId) => {
+  if (!confirm("Are you sure you want to delete this word?")) {
+    return;
+  }
   try {
     const response = await BackendAPI.deleteWord(wordId);
     if (response.status === 200) {
@@ -244,6 +248,10 @@ const downloadCSV = () => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+const removeCode = (index) => {
+  languageList.value.splice(index, 1);
 };
 
 </script>
