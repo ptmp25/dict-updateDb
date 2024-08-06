@@ -1,5 +1,5 @@
 <template>
-  <Add />
+  <Add @fetchList="fetchList" />
   <div id="vue_app" class="container">
     <button class="btn" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
@@ -18,18 +18,19 @@
       <thead>
         <tr>
           <th v-for="code in languageList" :key="code">{{ languagesDict[code] }}</th>
-          <th>Others</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="word in words" :key="word.id">
-          <td v-for="code in languageList" :key="code">{{ word.translations[code] }}</td>
-          <td>
-            <p v-for="(value, key) in word.others" :key="key">
-              <strong>{{ languagesDict[key] }}:</strong> {{ value }}
-            </p>
-          </td>
+          <td v-for="code in languageList" :key="code">
+            <td>
+              <template v-for="(value, index) in word.translations[code]">
+                <p v-if="word.translations[code].length > 1">{{ index + 1 }}. {{ value }}</p>
+                <p v-else>{{ value }}</p>
+              </template>
+            </td>
+        </td>
           <td>
             <button class="button-box" @click="showDetails(word.id)">Details</button>
             <button class="button-box" @click="editWord(word.id)">Edit</button>
@@ -73,7 +74,7 @@ const sortField = ref("id");
 const sortOrder = ref("asc");
 const languagesDict = languages;
 const viewOption = ref("");
-const languageList = ref([]);
+const languageList = ref(["en", "fr", "de", "vi"]);
 
 const fetchList = async () => {
   try {
@@ -86,7 +87,7 @@ const fetchList = async () => {
     if (response && response.data) {
       words.value = response.data.words;
       totalPages.value = response.data.totalPages;
-      // console.log("Fetched list:", response);
+      console.log("Fetched!");
     } else {
       console.error("Failed to fetch list:", response);
     }
