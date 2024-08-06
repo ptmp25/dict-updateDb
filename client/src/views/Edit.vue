@@ -2,49 +2,14 @@
     <div class="container">
         <h1>Edit Word</h1>
         <div v-if="word">
-            <table class="table-container">
-                <tr>
-                    <td class="label">English</td>
-                    <td class="input">
-                        <input type="text" v-model="word.en" id="english" placeholder="Enter word..." value="<%= word.en %>"
-                            autocomplete="off" @keyup.enter="translateText('en', word.en)" required />
-                    </td>
-                </tr>
-            </table>
-            <table class="table-container">
-                <tr>
-                    <td class="label">German</td>
-                    <td class="input">
-                        <input type="text" v-model="word.de" id="german" autocomplete="off" placeholder="Enter word..."
-                            @keyup.enter="translateText('de', word.de)" value="<%= word.de %>" required />
-                    </td>
-                </tr>
-            </table>
-            <table class="table-container">
-                <tr>
-                    <td class="label">French</td>
-                    <td class="input">
-                        <input type="text" v-model="word.fr" id="french" placeholder="Enter word..."
-                            @keyup.enter="translateText('fr', word.fr)" value="<%= word.fr %>" required />
-                    </td>
-                </tr>
-            </table>
-            <table class="table-container">
-                <tr>
-                    <td class="label">Vietnamese</td>
-                    <td class="input">
-                        <input type="text" v-model="word.vi" id="vietnamese" placeholder="Enter word..."
-                            @keyup.enter="translateText('vi', word.vi)" value="<%= word.vi %>" required />
-                    </td>
-                </tr>
-            </table>
-            <div v-for="( text, code) in word.others">
+            <div v-for="( text, code) in word.translations">
                 <table class="table-container">
                     <tr>
                         <td class="label">{{ languagesDict[code] }}</td>
                         <td class="input">
-                            <input type="text" v-model="word.others[code]" :id="code" placeholder="Enter word..."
-                                @keyup.enter="translateText(code, word.others[code])" autocomplete="off" required />
+                            <div v-for="(meaning, index) in text" :key="index">
+                                <p>{{ meaning }}</p>
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -66,7 +31,7 @@
 
 <script>
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router'; 
+import { useRoute } from 'vue-router';
 import { router } from '../router'; // Import
 import useDetails from '../hooks/useDetails';
 import { useToast } from 'vue-toastification'
@@ -101,7 +66,7 @@ export default {
             word.value = fetchedWord.value;
         });
 
-        return {id, word, toast };
+        return { id, word, toast };
     },
     methods: {
         addLanguage() {

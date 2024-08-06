@@ -4,10 +4,7 @@
     <button class="btn" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
     <select id="sort" v-model="sortField" @change="sortList(sortField)">
-      <option value="en">English</option>
-      <option value="de">German</option>
-      <option value="fr">French</option>
-      <option value="vi">Vietnamese</option>
+      <option v-for="(name, code) in languageList" :key="code" :value="code" option>{{ languagesDict[name] }}</option>
     </select>
     <label for="view">View</label>
     <select name="view" id="viewOption" v-model="viewOption">
@@ -18,24 +15,33 @@
       <thead>
         <tr>
           <th v-for="(code, index) in languageList" :key="code">{{ languagesDict[code] }}
-          <button @click="removeCode(index)" v-if="languageList.length > 2">-</button></th>
+            <button @click="removeCode(index)" v-if="languageList.length > 2">-</button>
+          </th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="word in words" :key="word.id">
+          <!-- Check if the word is being edited -->
           <td v-for="code in languageList" :key="code">
-            <td>
+            <div v-if="editMode === word.id">
+              <div v-for="(meaning, index) in word.translations[code]" :key="index">
+                <input type="text" v-model="word.translations[code][index]" placeholder="Enter translation..." />
+              </div>
+            </div>
+            <div v-else>
               <template v-for="(value, index) in word.translations[code]">
                 <p v-if="word.translations[code].length > 1">{{ index + 1 }}. {{ value }}</p>
                 <p v-else>{{ value }}</p>
               </template>
-            </td>
-        </td>
+            </div>
+          </td>
           <td>
-            <button class="button-box" @click="showDetails(word.id)">Details</button>
-            <button class="button-box" @click="editWord(word.id)">Edit</button>
-            <button class="button-box" @click="deleteWord(word.id)">Delete</button>
+            <button v-if="editMode !== word.id" class="button-box" @click="showDetails(word.id)">Details</button>
+            <button v-if="editMode !== word.id" class="button-box" @click="editWord(word.id)">Edit</button>
+            <button v-if="editMode === word.id" class="button-box" @click="saveWord(word.id)">Save</button>
+            <button v-if="editMode !== word.id" class="button-box" @click="deleteWord(word.id)">Delete</button>
+            <button v-if="editMode === word.id" class="button-box" @click="cancelEdit">Cancel</button>
           </td>
         </tr>
       </tbody>
@@ -76,6 +82,7 @@ const sortOrder = ref("asc");
 const languagesDict = languages;
 const viewOption = ref("");
 const languageList = ref(["en", "fr", "de", "vi"]);
+const editMode = ref(null); // Track the word being edited
 
 const fetchList = async () => {
   try {
@@ -117,23 +124,11 @@ const sortList = async (sortField) => {
   }
 };
 
-const viewWord = async (viewOption) => {
-  try {
-    const response = await BackendAPI.viewOption(
-      currentPage.value,
-      itemsPerPage.value,
-      viewOption
-    );
-    if (response && response.data) {
-      words.value = response.data.words;
-      totalPages.value = response.data.totalPages;
-      console.log("Fetched list:", response);
-    } else {
-      console.error("Failed to fetch list:", response);
-    }
-  } catch (error) {
-    console.error("An error occurred while fetching the list:", error);
+const viewWord = async () => {
+  if (!languageList.value.includes(viewOption.value)) {
+    languageList.value.push(viewOption.value);
   }
+  console.log(languageList.value);
 };
 
 const showDetails = async (wordId) => {
@@ -147,14 +142,46 @@ const showDetails = async (wordId) => {
 };
 
 const editWord = async (wordId) => {
+  // try {
+  //   router.push({
+  //     path: `/edit/${wordId}`, // Navigate to the details page with the wordId
+  //   });
+  // } catch (error) {
+  //   console.error("An error occurred while showing word details:", error);
+  // }
+  editMode.value = wordId; // Set the edit mode to the current word ID
+};
+
+
+const cancelEdit = () => {
+  editMode.value = null; // Exit the edit mode
+  fetchList(); // Refresh the list after exiting the edit mode
+};
+
+const saveWord = async (wordId) => {
+  const word = words.value.find((w) => w.id === wordId);
+  if (!word) return;
+
   try {
-    router.push({
-      path: `/edit/${wordId}`, // Navigate to the details page with the wordId
-    });
+    const response = await BackendAPI.updateDetails(wordId, word);
+    if (response.statusText !== "OK" || response.status !== 200) {
+      if (data.code && data.code === 11000) {
+        Toast.error("Duplicated ID");
+        console.error(data.message)
+      } else {
+        Toast.error("An error occurred while updating the word");
+        console.error(data.message)
+      }
+    } else {
+      Toast.success("Word updated successfully");
+      editMode.value = null; // Exit the edit mode
+    }
   } catch (error) {
-    console.error("An error occurred while showing word details:", error);
+    Toast.error("An error occurred while updating the word");
+    console.error(error);
   }
 };
+
 
 // Function to delete a word by ID
 const deleteWord = async (wordId) => {
