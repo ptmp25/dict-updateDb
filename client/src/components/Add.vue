@@ -40,6 +40,7 @@ import backendApi from '../services/backendApi';
 import { useToast } from 'vue-toastification';
 
 export default {
+    emits: ['wordAdded'], // Declare the custom event here
     data() {
         return {
             word: {
@@ -130,7 +131,9 @@ export default {
                         }
                     };
                     this.toast.success("New word created successfully");
-                    
+
+                    // Emit the event to update the list
+                    this.$emit('wordAdded');
                 }
             } catch (error) {
                 this.toast.error("An error occurred while creating the word");
