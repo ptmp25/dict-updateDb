@@ -4,7 +4,7 @@
     <button class="btn" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
     <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
-      <option v-for="(name, code) in languageList" :key="code" :value="code" option>{{ languagesDict[name] }}</option>
+      <option v-for="(code, index) in languageList" :key="code" :value="code" option>{{ languagesDict[name] }}</option>
     </select>
     <label for="view">View</label>
     <select name="view" class="input-field col s12" id="viewOption" v-model="viewOption">
@@ -78,7 +78,7 @@ const words = ref([]);
 const currentPage = ref(Number(route.query.page) || 1); // Get the current page number from the URL query parameter
 const totalPages = ref(1);
 const itemsPerPage = ref(10);
-const sortField = ref("id");
+const sortField = ref("en");
 const sortOrder = ref("asc");
 const languagesDict = languages;
 const viewOption = ref("");

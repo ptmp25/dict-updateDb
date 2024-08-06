@@ -43,26 +43,31 @@ router.post("/save", async (req, res) => {
 
 router.get("/read_list", async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
-    const sortField = `translates.${req.query.sortField}` || "translations.en"; // default to 'English' translation if not provided
-
+    const sortField = req.query.sortField
+      ? `translations.${req.query.sortField}`
+      : "translations.en"; // default to 'English' translation if not provided
+    console.log("sortField:", sortField);
     const total = await Word.countDocuments();
+
     const words = await Word.find()
       .sort({ [sortField]: 1 }) // use the sortField dynamically
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     res.json({
-      result: Constant.OK_CODE,
+      result: "OK", // Ensure this constant is correctly defined
       total,
       page,
       totalPages: Math.ceil(total / limit),
       words,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error fetching word list:", err);
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
 

@@ -11,45 +11,52 @@
         <button @click="searchPost">Search</button>
         <!-- <button @click="searchPost">Search</button> -->
         <p class="error">{{ message }}</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>English</th>
-                    <th>French</th>
-                    <th>German</th>
-                    <th>Vietnamese</th>
-                    <th>Others</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="word in words" :key="word.id">
-                    <td>{{ word.en }}</td>
-                    <td>{{ word.fr }}</td>
-                    <td>{{ word.de }} </td>
-                    <td>{{ word.vi }}</td>
-                    <td>
-                        <p v-for="(value, key) in word.others" :key="key">
-                            <strong>{{ languagesDict[key] }}:</strong> {{ value }}
-                        </p>
-                    </td>
-                    <td>
-                        <button class="button-box" @click="showDetails(word.id)">Details</button>
-                        <button class="button-box" @click="editWord(word.id)">Edit</button>
-                        <button class="button-box" @click="deleteWord(word)">Delete</button>
-                    </td>
-                </tr>
-            </tbody>
+        <table class="highlight ">
+          <thead>
+            <tr>
+              <th v-for="(code, index) in languageList" :key="code">{{ languagesDict[code] }}
+                <button @click="removeCode(index)" v-if="languageList.length > 2">-</button>
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="word in words" :key="word.id">
+              <!-- Check if the word is being edited -->
+              <td v-for="code in languageList" :key="code">
+                <div v-if="editMode === word.id">
+                  <div v-for="(meaning, index) in word.translations[code]" :key="index">
+                    <input type="text" v-model="word.translations[code][index]" placeholder="Enter translation..." />
+                  </div>
+                </div>
+                <div v-else>
+                  <template v-for="(value, index) in word.translations[code]">
+                    <p v-if="word.translations[code].length > 1">{{ index + 1 }}. {{ value }}</p>
+                    <p v-else>{{ value }}</p>
+                  </template>
+                </div>
+              </td>
+              <td>
+                <!-- <button v-if="editMode !== word.id" class="button-box" @click="showDetails(word.id)">Details</button>
+                <button v-if="editMode !== word.id" class="button-box" @click="editWord(word.id)">Edit</button>
+                <button v-if="editMode === word.id" class="button-box" @click="saveWord(word.id)">Save</button>
+                <button v-if="editMode !== word.id" class="button-box" @click="deleteWord(word.id)">Delete</button>
+                <button v-if="editMode === word.id" class="button-box" @click="cancelEdit">Cancel</button> -->
+              </td>
+            </tr>
+          </tbody>
         </table>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useToast } from 'vue-toastification';
 import BackendAPI from '../services/backendApi'; // Import the BackendAPI
 import { useRoute } from 'vue-router';
 import { router } from '../router'; // Import the router object from the Vue Router package
+import M from 'materialize-css';
+import languages from "../hooks/languages";
 const toast = useToast();
 
 const search = ref('');
@@ -57,6 +64,8 @@ const language = ref('english');
 const words = ref([]);
 const message = ref('');
 const route = useRoute();
+const languageList = ref(["en", "fr", "de", "vi"]);
+const languagesDict = languages;
 
 const searchPost = async () => {
     if (search.value === '') {
@@ -101,6 +110,13 @@ const showDetails = async (id) => {
 const editWord = async (id) => {
     router.push('/edit/' + id);
 };
+
+onMounted(() => {
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems);
+
+});
+
 
 </script>
 
