@@ -17,16 +17,20 @@ router.get("/pp3946p", function (req, res) {
 router.post("/save", async (req, res) => {
   try {
     const wordData = req.body;
-    // console.log("newWord:", wordData);
+    // console.log("Received wordData:", wordData);
+
     const newWord = new Word(wordData);
-    newWord.id = uuidv4(); // Assign a unique ID to the newWord object
+    newWord.id = uuidv4(); // Assign a unique ID to the new instance
+    // console.log("Instance before save:", newWord); // Check what the new instance looks like
+
     const savedWord = await newWord.save();
+    // console.log("Document after save:", savedWord); // This will confirm what's saved in the database
+
     res.status(200).json({
       status: 200,
       result: Constant.OK_CODE,
       data: savedWord,
     });
-    // res.json(savedWord);
   } catch (error) {
     console.error("Error saving word:", error);
     res.status(500).json({
@@ -36,6 +40,7 @@ router.post("/save", async (req, res) => {
     });
   }
 });
+
 
 router.get("/read_list", async (req, res) => {
   try {
@@ -79,17 +84,6 @@ router.get("/search", async (req, res) => {
   } catch (err) {
     console.error("Error searching words:", err);
     res.status(500).json({ message: "Server Error" });
-  }
-});
-
-router.post("/create_new", async (req, res) => {
-  const word = new Word(req.body);
-  try {
-    const result = await word.save();
-    res.json(result);
-  } catch (error) {
-    console.error("Error saving word:", error.errorResponse);
-    res.status(500).json(error.errorResponse);
   }
 });
 
