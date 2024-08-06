@@ -1,17 +1,18 @@
 <template>
   <Add @fetchList="fetchList" />
   <div id="vue_app" class="container">
+    <Search @updateWords="updateWords"  />
     <button class="btn" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
     <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
-      <option v-for="(code, index) in languageList" :key="code" :value="code" option>{{ languagesDict[name] }}</option>
+      <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
     </select>
     <label for="view">View</label>
     <select name="view" class="input-field col s12" id="viewOption" v-model="viewOption">
-      <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
+      <option v-for="(name, code) in languagesDict" :key="code" :value="code">{{ name }}</option>
     </select>
     <button @click="viewWord">Add</button>
-    <table class="highlight ">
+    <table class="highlight">
       <thead>
         <tr>
           <th v-for="(code, index) in languageList" :key="code">{{ languagesDict[code] }}
@@ -22,7 +23,6 @@
       </thead>
       <tbody>
         <tr v-for="word in words" :key="word.id">
-          <!-- Check if the word is being edited -->
           <td v-for="code in languageList" :key="code">
             <div v-if="editMode === word.id">
               <div v-for="(meaning, index) in word.translations[code]" :key="index">
@@ -47,35 +47,31 @@
       </tbody>
     </table>
     <div class="pagination">
-      <button v-show="currentPage !== 1" @click="goToPage(currentPage - 1)">
-        Previous
-      </button>
+      <button v-show="currentPage !== 1" @click="goToPage(currentPage - 1)">Previous</button>
       <button v-for="page in pageNumbers" :key="page" @click="goToPage(page)"
         :class="{ active: page === currentPage, disabled: page === '...' }">
         {{ page }}
       </button>
-      <button v-show="currentPage !== totalPages" @click="goToPage(currentPage + 1)">
-        Next
-      </button>
+      <button v-show="currentPage !== totalPages" @click="goToPage(currentPage + 1)">Next</button>
     </div>
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import BackendAPI from '../services/backendApi'; // Import the BackendAPI
-import { router } from '../router'; // Import the router object from the Vue Router package
+import BackendAPI from '../services/backendApi';
+import { router } from '../router';
 import { useToast } from 'vue-toastification';
 import { useRoute } from 'vue-router';
 import languages from "../hooks/languages";
 import Add from '../components/Add.vue';
+import Search from '../components/Search.vue';
 import M from 'materialize-css';
 const Toast = useToast();
 
 const route = useRoute();
 const words = ref([]);
-const currentPage = ref(Number(route.query.page) || 1); // Get the current page number from the URL query parameter
+const currentPage = ref(Number(route.query.page) || 1);
 const totalPages = ref(1);
 const itemsPerPage = ref(10);
 const sortField = ref("en");
@@ -83,7 +79,7 @@ const sortOrder = ref("asc");
 const languagesDict = languages;
 const viewOption = ref("");
 const languageList = ref(["en", "fr", "de", "vi"]);
-const editMode = ref(null); // Track the word being edited
+const editMode = ref(null);
 
 const fetchList = async () => {
   try {
@@ -103,6 +99,10 @@ const fetchList = async () => {
   } catch (error) {
     console.error("An error occurred while fetching the list:", error);
   }
+};
+
+const updateWords = (newWords) => {
+  words.value = newWords;
 };
 
 const sortList = async (sortField) => {
@@ -135,7 +135,7 @@ const viewWord = async () => {
 const showDetails = async (wordId) => {
   try {
     router.push({
-      path: `/details/${wordId}`, // Navigate to the details page with the wordId
+      path: `/details/${wordId}`,
     });
   } catch (error) {
     console.error("An error occurred while showing word details:", error);
@@ -143,20 +143,12 @@ const showDetails = async (wordId) => {
 };
 
 const editWord = async (wordId) => {
-  // try {
-  //   router.push({
-  //     path: `/edit/${wordId}`, // Navigate to the details page with the wordId
-  //   });
-  // } catch (error) {
-  //   console.error("An error occurred while showing word details:", error);
-  // }
-  editMode.value = wordId; // Set the edit mode to the current word ID
+  editMode.value = wordId;
 };
 
-
 const cancelEdit = () => {
-  editMode.value = null; // Exit the edit mode
-  fetchList(); // Refresh the list after exiting the edit mode
+  editMode.value = null;
+  fetchList();
 };
 
 const saveWord = async (wordId) => {
@@ -167,35 +159,20 @@ const saveWord = async (wordId) => {
     const response = await BackendAPI.updateDetails(wordId, word);
     if (response.statusText !== "OK" || response.status !== 200) {
       if (data.code && data.code === 11000) {
-        Toast.error("Duplicated ID");
-        console.error(data.message)
-      } else {
-        Toast.error("An error occurred while updating the word");
-        console.error(data.message)
+        Toast.error("Duplicate translation found, please check!");
       }
-    } else {
-      Toast.success("Word updated successfully");
-      editMode.value = null; // Exit the edit mode
     }
+    editMode.value = null;
   } catch (error) {
-    Toast.error("An error occurred while updating the word");
-    console.error(error);
+    console.error("An error occurred while saving the word:", error);
   }
 };
 
-
-// Function to delete a word by ID
 const deleteWord = async (wordId) => {
-  if (!confirm("Are you sure you want to delete this word?")) {
-    return;
-  }
   try {
     const response = await BackendAPI.deleteWord(wordId);
-    if (response.status === 200) {
-      // Remove the word from the list if the deletion is successful
-      words.value = words.value.filter((word) => word.id !== wordId);
-      Toast.success("Word deleted successfully!");
-      // Refresh the list after deletion
+    if (response && response.status === 200) {
+      console.log("Deleted successfully!");
       fetchList();
     } else {
       console.error("Failed to delete word:", response);
@@ -205,84 +182,117 @@ const deleteWord = async (wordId) => {
   }
 };
 
-// Calculate pagination page numbers
-const pageNumbers = computed(() => {
-  const pages = [];
-  const maxPagesToShow = 5;
-  const halfMaxPagesToShow = Math.floor(maxPagesToShow / 2);
-  let startPage = Math.max(1, currentPage.value - halfMaxPagesToShow);
-  const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages.value);
+const removeCode = (index) => {
+  if (languageList.value.length > 2) {
+    languageList.value.splice(index, 1);
+  }
+};
 
-  if (endPage - startPage < maxPagesToShow - 1) {
-    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+const goToPage = async (page) => {
+  if (page !== '...' && page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    try {
+      const response = await BackendAPI.readList(
+        currentPage.value,
+        itemsPerPage.value,
+        sortField.value,
+        sortOrder.value
+      );
+      if (response && response.data) {
+        words.value = response.data.words;
+        totalPages.value = response.data.totalPages;
+        console.log("Fetched page data:", response);
+      } else {
+        console.error("Failed to fetch page data:", response);
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching the page data:", error);
+    }
+  }
+};
+
+const downloadCSV = async () => {
+  try {
+    const response = await BackendAPI.downloadCSV();
+    if (response && response.data) {
+      const csvContent = response.data;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'words.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else {
+      console.error("Failed to download CSV:", response);
+    }
+  } catch (error) {
+    console.error("An error occurred while downloading the CSV:", error);
+  }
+};
+
+const pageNumbers = computed(() => {
+  const range = 2;
+  const pages = [];
+  const totalPagesNumber = totalPages.value;
+
+  let startPage = Math.max(1, currentPage.value - range);
+  let endPage = Math.min(totalPagesNumber, currentPage.value + range);
+
+  if (currentPage.value - range > 1) {
+    pages.push(1);
+    if (currentPage.value - range > 2) {
+      pages.push("...");
+    }
   }
 
   for (let i = startPage; i <= endPage; i++) {
     pages.push(i);
   }
 
-  if (startPage > 1) {
-    pages.unshift("...");
-  }
-
-  if (endPage < totalPages.value) {
-    pages.push("...");
+  if (currentPage.value + range < totalPagesNumber) {
+    if (currentPage.value + range < totalPagesNumber - 1) {
+      pages.push("...");
+    }
+    pages.push(totalPagesNumber);
   }
 
   return pages;
 });
 
-// Function to navigate to a specific page
-const goToPage = (page) => {
-  if (page === "...") return;
-  currentPage.value = page;
-  fetchList();
-};
-
 onMounted(() => {
-  fetchList(); // Fetch the word list when the component is mounted
-  var elems = document.querySelectorAll('select');
-  var instances = M.FormSelect.init(elems);
-
+  fetchList();
+  const dropdowns = document.querySelectorAll('.dropdown-trigger');
+  M.Dropdown.init(dropdowns);
 });
-
-const downloadCSV = () => {
-  // Fetch the data from your data source
-  const csvData = words.value; // Replace with your actual data
-
-  // Define the CSV headers
-  const headers = ["English", "French", "German", "Vietnamese", "Other"];
-
-  // Convert the data to CSV format
-  const csvContent = [
-    headers.join(","), // Add the header row
-    ...csvData.map((row) =>
-      [
-        row.en,
-        row.fr,
-        row.de,
-        row.vi,
-        Object.entries(row.others)
-          .map(([key, value]) => `${languagesDict[key]}: ${value}`)
-          .join("; "), // Convert the 'others' object to a string
-      ].join(",") // Join each row with commas
-    ),
-  ].join("\n"); // Join each line with newline characters
-
-  // Create a Blob with the CSV data and download it
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "words.csv"); // Specify the filename
-  link.style.display = "none";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-const removeCode = (index) => {
-  languageList.value.splice(index, 1);
-};
-
 </script>
+
+<style>
+.container {
+  padding: 20px;
+}
+
+.search-container {
+  margin-bottom: 20px;
+}
+
+.pagination {
+  margin-top: 20px;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination button {
+  margin: 0 5px;
+}
+
+.pagination button.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+</style>

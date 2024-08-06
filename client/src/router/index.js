@@ -29,11 +29,11 @@ export const router = createRouter({
       name: 'details',
       component: () => import('../views/Details.vue')
     },
-    {
-      path: '/search',
-      name: 'search',
-      component: () => import('../views/Search.vue')
-    },
+    // {
+    //   path: '/search',
+    //   name: 'search',
+    //   component: () => import('../views/Search.vue')
+    // },
     {
       path: '/translate',
       name: 'translate',
