@@ -3,15 +3,15 @@
   <div id="vue_app" class="container">
     <button class="btn" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
-    <select id="sort" v-model="sortField" @change="sortList(sortField)">
+    <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
       <option v-for="(name, code) in languageList" :key="code" :value="code" option>{{ languagesDict[name] }}</option>
     </select>
     <label for="view">View</label>
-    <select name="view" id="viewOption" v-model="viewOption">
+    <select name="view" class="input-field col s12" id="viewOption" v-model="viewOption">
       <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
     </select>
     <button @click="viewWord">Add</button>
-    <table>
+    <table class="highlight ">
       <thead>
         <tr>
           <th v-for="(code, index) in languageList" :key="code">{{ languagesDict[code] }}
@@ -70,6 +70,7 @@ import { useToast } from 'vue-toastification';
 import { useRoute } from 'vue-router';
 import languages from "../hooks/languages";
 import Add from '../components/Add.vue';
+import M from 'materialize-css';
 const Toast = useToast();
 
 const route = useRoute();
@@ -240,6 +241,9 @@ const goToPage = (page) => {
 
 onMounted(() => {
   fetchList(); // Fetch the word list when the component is mounted
+  var elems = document.querySelectorAll('select');
+  var instances = M.FormSelect.init(elems);
+
 });
 
 const downloadCSV = () => {

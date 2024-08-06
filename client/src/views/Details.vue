@@ -3,7 +3,7 @@
         <h1>Word Details</h1>
         <div class="words" v-if="word">
             <div v-for="( text, code) in word.translations">
-                <table class="table-container">
+                <table class="table-container responsive-table centered">
                     <tr>
                         <td class="label">{{ languagesDict[code] }}</td>
                         <td class="input">
