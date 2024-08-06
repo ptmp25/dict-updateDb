@@ -41,13 +41,12 @@ router.post("/save", async (req, res) => {
   }
 });
 
-
 router.get("/read_list", async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const sortField = req.query.sortField || "english"; // default to 'english' if not provided
+    const sortField = req.query.sortField || "translations.en"; // default to 'English' translation if not provided
 
     const total = await Word.countDocuments();
     const words = await Word.find()

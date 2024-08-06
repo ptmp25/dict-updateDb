@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <Add/>
+  <Add @wordAdded="fetchList" />
   <div id="vue_app" class="container">
     <button class="btn" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
@@ -12,27 +12,27 @@
       <option value="fr">French</option>
       <option value="vi">Vietnamese</option>
     </select>
+    <label for="view">View</label>
+    <select name="view" id="viewOption" v-model="viewOption">
+      <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
+    </select>
+    <button @click="viewWord">Add</button>
     <table>
       <thead>
         <tr>
-          <th>English</th>
-          <th>French</th>
-          <th>German</th>
-          <th>Vietnamese</th>
-          <th>Others</th>
+          <th v-for="code in languageList" :key="code">{{ languagesDict[code] }}</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="word in words" :key="word.id">
-          <td>{{ word.en }}</td>
-          <td>{{ word.fr }}</td>
-          <td>{{ word.de }} </td>
-          <td>{{ word.vi }}</td>
-          <td>
-              <p v-for="(value, key) in word.others" :key="key" >
-                <strong>{{ languagesDict[key] }}:</strong> {{ value }}
-              </p>
+          <td v-for="code in languageList" :key="code">
+            <div v-if="!word.translations[code]"></div>  
+            <div v-else>
+              <div v-for="(meaning, index) in word.translations[code]" :key="index">
+                <p :id="`input-${code}-${index}`">{{ meaning }}</p>
+              </div>
+            </div>
           </td>
           <td>
             <button class="button-box" @click="showDetails(word.id)">Details</button>
@@ -65,16 +65,18 @@ import { useToast } from 'vue-toastification';
 import { useRoute } from 'vue-router';
 import languages from "../hooks/languages";
 import Add from '../components/Add.vue';
-const Toast = useToast();
 
+const Toast = useToast();
 const route = useRoute();
 const words = ref([]);
-const currentPage = ref(Number(route.query.page) || 1); // Get the current page number from the URL query parameter
+const currentPage = ref(Number(route.query.page) || 1);
 const totalPages = ref(1);
 const itemsPerPage = ref(10);
 const sortField = ref("id");
 const sortOrder = ref("asc");
 const languagesDict = languages;
+const viewOption = ref("");
+const languageList = ref(["en", "fr", "de", "vi"]); // Default languages displayed
 
 const fetchList = async () => {
   try {
@@ -87,7 +89,6 @@ const fetchList = async () => {
     if (response && response.data) {
       words.value = response.data.words;
       totalPages.value = response.data.totalPages;
-      // console.log("Fetched list:", response);
     } else {
       console.error("No response received", response);
     }
@@ -97,33 +98,21 @@ const fetchList = async () => {
 };
 
 const pageNumbers = computed(() => {
-  const range = 2; // Number of pages to show before and after the current page
+  const range = 2;
   let start = Math.max(1, currentPage.value - range);
   let end = Math.min(totalPages.value, currentPage.value + range);
 
-  if (start > 1) {
-    start += 1; // Add one more page number at the beginning if there's a gap
-  }
-  if (end < totalPages.value) {
-    end -= 1; // Remove one page number from the end if there's a gap
-  }
+  if (start > 1) start += 1;
+  if (end < totalPages.value) end -= 1;
 
   let pages = [];
-  for (let i = start; i <= end; i++) {
-    pages.push(i);
-  }
+  for (let i = start; i <= end; i++) pages.push(i);
 
-  // Always include first and last page
-  if (start > 2) {
-    pages.unshift(1, "...");
-  } else if (start > 1) {
-    pages.unshift(1);
-  }
-  if (end < totalPages.value - 1) {
-    pages.push("...", totalPages.value);
-  } else if (end < totalPages.value) {
-    pages.push(totalPages.value);
-  }
+  if (start > 2) pages.unshift(1, "...");
+  else if (start > 1) pages.unshift(1);
+
+  if (end < totalPages.value - 1) pages.push("...", totalPages.value);
+  else if (end < totalPages.value) pages.push(totalPages.value);
 
   return pages;
 });
@@ -132,7 +121,7 @@ const goToPage = (page) => {
   if (page !== "..." && page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
     fetchList();
-    router.replace({ query: { page: page } }); // Update the URL with the new page number
+    router.replace({ query: { page: page } });
   }
 };
 
@@ -141,7 +130,6 @@ const deleteWord = async (word) => {
     try {
       const response = await BackendAPI.deleteWord(word.id);
       if (response && response.data) {
-        // console.log("Deleted word:", response);
         Toast.success("Word deleted successfully");
         fetchList();
       } else {
@@ -155,9 +143,7 @@ const deleteWord = async (word) => {
 };
 
 const showDetails = async (id) => {
-  // Redirect to the edit page with the specified id
   router.push('/details/' + id);
-  // router.push({ name: 'edit', params: { id: router.params.id } }); // Use the router object to navigate to the edit page with the specified id
 };
 
 const editWord = async (id) => {
@@ -192,7 +178,7 @@ const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
     fetchList();
-    router.replace({ query: { page: currentPage.value } }); // Update the URL with the new page number
+    router.replace({ query: { page: currentPage.value } });
   }
 };
 
@@ -200,8 +186,15 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
     fetchList();
-    router.replace({ query: { page: currentPage.value } }); // Update the URL with the new page number
+    router.replace({ query: { page: currentPage.value } });
   }
+};
+
+const viewWord = async () => {
+  if (!languageList.value.includes(viewOption.value)) {
+    languageList.value.push(viewOption.value);
+  }
+  console.log(languageList.value);
 };
 
 onMounted(() => {
@@ -228,7 +221,3 @@ onMounted(() => {
     nextPage
 };
 </script>
-
-<style>
-/* Add your styles here */
-</style>

@@ -130,6 +130,7 @@ export default {
                         }
                     };
                     this.toast.success("New word created successfully");
+                    
                 }
             } catch (error) {
                 this.toast.error("An error occurred while creating the word");
