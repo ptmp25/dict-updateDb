@@ -230,11 +230,30 @@ router.post("/upload_csv", upload.single("file"), async (req, res) => {
 
 router.get("/export_csv", async (req, res) => {
   try {
+    // Get the languageList from the query parameters
+    const languageList = req.query.languages
+      ? req.query.languages.split(",")
+      : ["en", "fr", "de", "vi"];
+
     const words = await Word.find().lean().exec();
 
     if (!words.length) {
       return res.status(404).json({ message: "No words found" });
     }
+
+    // Prepare the fields for CSV based on the languageList
+    const fields = languageList.map((lang) => ({
+      label: lang.toUpperCase(),
+      value: (row) => {
+        if (row.translations && row.translations[lang]) {
+          return row.translations[lang].join("; ");
+        }
+        return "";
+      },
+    }));
+
+    // // Add the 'id' field at the beginning
+    // fields.unshift({ label: "ID", value: "id" });
 
     const opts = { fields };
 

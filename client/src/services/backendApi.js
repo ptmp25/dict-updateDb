@@ -61,10 +61,26 @@ export default {
       throw error;
     }
   },
-  async exportCSV() {
+  async downloadCSV(languages) {
     try {
-      const response = await apiClient.get("/words/export_csv");
-      return response;
+      const response = await apiClient.get(
+        `/words/export_csv?languages=${languages}`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      const blob = new Blob([response.data], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "words.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      return { success: true };
     } catch (error) {
       console.error("Error exporting CSV:", error);
       throw error;

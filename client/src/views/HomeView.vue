@@ -219,23 +219,11 @@ const goToPage = async (page) => {
 const downloadCSV = async () => {
   try {
     const languagesQuery = languageList.value.join(',');
-    const response = await BackendAPI.downloadCSV(languagesQuery);
-    if (response && response.data) {
-      const csvContent = response.data;
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'words.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } else {
-      console.error("Failed to download CSV:", response);
-    }
+    await BackendAPI.downloadCSV(languagesQuery);
+    // The CSV download should have started automatically
   } catch (error) {
     console.error("An error occurred while downloading the CSV:", error);
+    // Handle the error (e.g., show an error message to the user)
   }
 };
 
