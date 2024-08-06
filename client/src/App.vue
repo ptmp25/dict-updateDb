@@ -9,8 +9,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <header>
+  <!-- <header>
     <Header />
-  </header>
+  </header> -->
   <RouterView />
 </template>

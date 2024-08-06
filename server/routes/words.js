@@ -69,10 +69,10 @@ router.get("/read_list", async (req, res) => {
 router.get("/search", async (req, res) => {
   try {
     const query = req.query.q;
-    const language = req.query.language || "english"; // default to 'english' if not provided
+    const language = req.query.language || "en"; // default to 'english' if not provided
 
     const words = await Word.find({
-      [language]: { $regex: query, $options: "i" },
+      [`translations.${language}`]: { $regex: query, $options: "i" },
     }).lean();
 
     if (!words.length) {
@@ -166,33 +166,60 @@ router.post("/upload_csv", upload.single("file"), async (req, res) => {
     console.error("File upload failed:", req.file);
     return res.status(400).json({ message: "File upload failed" });
   }
+
   fs.createReadStream(req.file.path)
     .pipe(csv())
-    .on("data", (data) => {
-      if (!data.id) {
-        data.id = uuidv4(); // Assign a unique ID to each record
-      }
-      data.others = data.others || {};
-      results.push(data);
+    .on("data", (row) => {
+      const translations = {};
+
+      // Extract translations for each language from CSV row
+      Object.keys(row).forEach((language) => {
+        translations[language] = row[language]
+          .split(",")
+          .map((word) => word.trim());
+      });
+
+      results.push({
+        id: uuidv4(), // Assign a unique ID to each record
+        translations: translations,
+      });
     })
     .on("end", async () => {
       try {
+        // Get all existing words from the database
         const existingWords = await Word.find().lean().exec();
-        const existingEnglishs = existingWords.map(word => word.english);
 
-        const newWords = results.filter(
-          (word) => !existingEnglishs.includes(word.english)
+        // Build a set of existing translations to avoid duplicates
+        const existingTranslations = new Set(
+          existingWords.flatMap((word) =>
+            Array.from(word.translations.entries()).flatMap(
+              ([language, words]) => words.map((w) => `${language}:${w}`)
+            )
+          )
         );
 
+        // Filter out duplicate words from the results
+        const newWords = results.filter((word) =>
+          Object.entries(word.translations).some(([language, words]) =>
+            words.some((w) => !existingTranslations.has(`${language}:${w}`))
+          )
+        );
+
+        // Insert new words that are not duplicates
         const docs = await Word.insertMany(newWords);
-        res.status(200).json({ result: Constant.OK_CODE, data: docs });
+        res.status(200).json({ result: "OK", data: docs });
       } catch (err) {
-        res
-          .status(500)
-          .json({ result: Constant.FAILED_CODE, message: err.message });
+        console.error("Error processing CSV:", err);
+        res.status(500).json({ message: "Server Error", error: err.message });
       } finally {
-        fs.unlinkSync(req.file.path);
+        fs.unlinkSync(req.file.path); // Clean up the uploaded file
       }
+    })
+    .on("error", (err) => {
+      console.error("CSV Parsing Error:", err);
+      res
+        .status(500)
+        .json({ message: "CSV Parsing Error", error: err.message });
     });
 });
 
