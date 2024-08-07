@@ -1,36 +1,36 @@
 <template>
     <div class="container">
-        <h1>Add New</h1>
-        <label for="newLang">Add Language:</label>
-        <select v-model="newLang" id="newLang">
-            <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
-        </select>
-        <button @click="addLanguage">Add</button>
-    </div>
-    <div class="table-container" v-for="(meanings, code) in word.translations" :key="code">
-        <table v-if="meanings.length !== 0">
-            <tr>
-                <!-- First column: Language name -->
-                <td class="label">
-                    {{ languagesDict[code] }}
-                </td>
+        <h1>Add New Word</h1>
+        <div class="">
+            <p for="newLang">Add Language:</p>
+            <select v-model="newLang" id="newLang" >
+                <option value="" disabled selected>Choose new language you want to add</option>
+                <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
+            </select>
+        </div>
+        <button @click="addLanguage" class="btn green lighten-1">Add</button>
+        <div class="table-container" v-for="(meanings, code) in word.translations" :key="code">
+            <table v-if="meanings.length !== 0">
+                <tr>
+                    <!-- First column: Language name -->
+                    <td class="label blue-grey lighten-5">
+                        {{ languagesDict[code] }}
+                    </td>
 
-                <!-- All meanings for the language in one cell -->
-                <td class="input">
-                    <div v-for="(meaning, index) in meanings" :key="index">
-                        <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
-                            placeholder="Enter word..." autocomplete="off"
-                            @keyup.enter="translateText(code, word.translations[code][index])" required />
-                        <button class="btn danger" style="display:inline"
-                            @click="deleteMeaning(code, index)">Delete</button>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div>
-        <button class="btn right" @click="create">Submit</button>
-
+                    <!-- All meanings for the language in one cell -->
+                    <td class="input">
+                        <div v-for="(meaning, index) in meanings" :key="index" class="sameline">
+                            <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
+                                placeholder="Enter word..." autocomplete="off"
+                                @keyup.enter="translateText(code, word.translations[code][index])" required />
+                            <button class="btn red lighten-1" style="display:inline"
+                                @click="deleteMeaning(code, index)">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <button class="btn right green" @click="create">Submit</button>
     </div>
 </template>
 
@@ -61,7 +61,8 @@ export default {
     },
     methods: {
         addLanguage() {
-            if (newLang === '') {
+            if (this.newLang === '') {
+                console.log('Please select a language to add');
                 this.toast.error('Please select a language to add');
                 return;
             }
@@ -70,6 +71,7 @@ export default {
             } else {
                 this.word.translations[this.newLang] = [''];
             }
+            console.log('add', this.newLang);
         },
         deleteMeaning(code, index) {
             console.log('delete', this.word.translations[code]);

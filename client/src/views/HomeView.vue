@@ -2,7 +2,7 @@
   <Add @fetchList="fetchList" />
   <div id="vue_app" class="container">
     <Search :languageList="languageList" @updateWords="updateWords" @updateLanguageList="updateLanguageList" />
-    <button class="btn" @click="downloadCSV">Download CSV</button>
+    <button class="btn  light-blue accent-4" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
     <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
       <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
@@ -262,31 +262,3 @@ onMounted(() => {
   M.Dropdown.init(dropdowns);
 });
 </script>
-
-<style>
-.container {
-  padding: 20px;
-}
-
-.search-container {
-  margin-bottom: 20px;
-}
-
-.pagination {
-  margin-top: 20px;
-}
-
-.pagination button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.pagination button {
-  margin: 0 5px;
-}
-
-.pagination button.disabled {
-  pointer-events: none;
-  opacity: 0.5;
-}
-</style>
