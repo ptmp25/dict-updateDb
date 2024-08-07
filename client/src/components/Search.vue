@@ -28,6 +28,10 @@ const props = defineProps({
   languageList: {
     type: Array,
     required: true
+  }, 
+  words: {
+    type: Array,
+    required: true
   }
 });
 

@@ -137,6 +137,10 @@ export default {
       this.languageList = languageList;
     },
     removeCode(index) {
+      if (this.languageList.length === 2) {
+        this.toast.warning('You must have at least 2 languages');
+        return;
+      }
       this.languageList.splice(index, 1);
     },
     async sortList(sortField) {
