@@ -65,7 +65,7 @@ import { ref, onMounted, computed } from "vue";
 import BackendAPI from '../services/backendApi';
 import { router } from '../router';
 import { useToast } from 'vue-toastification';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import languages from "../hooks/languages";
 import Add from '../components/Add.vue';
 import Search from '../components/Search.vue';
@@ -88,9 +88,12 @@ export default {
   setup() {
     const toast = useToast();
     const route = useRoute();
+    const router = useRouter();
 
     return {
       toast,
+      route,
+      router
     };
   },
   components: {
@@ -109,6 +112,15 @@ export default {
         if (response && response.data) {
           this.words = response.data.words;
           this.totalPages = response.data.totalPages;
+
+          // Update URL
+          this.$router.push({
+            query: {
+              ...this.$route.query,
+              page: this.currentPage,
+              sort: this.sortField
+            }
+          });
         } else {
           console.error('Error fetching list:', response.data.message);
         }
@@ -138,6 +150,8 @@ export default {
         if (response.data.data) {
           this.words = response.data.words;
           this.totalPages = response.data.totalPages;
+          this.sortField = sortField;
+          this.currentPage = 1; // Reset to first page when sorting
         } else {
           console.error('Error sorting list:', response.data.message);
         }
@@ -198,7 +212,7 @@ export default {
     async goToPage(page) {
       if (page !== '...' && page !== this.currentPage) {
         this.currentPage = page;
-        this.fetchList();
+        await this.fetchList();
       }
     },
     downloadCSV() {
@@ -245,6 +259,14 @@ export default {
   },
   mounted() {
     console.log('HomeView mounted');
+
+    // Read query parameters
+    const page = parseInt(this.$route.query.page) || 1;
+    const sort = this.$route.query.sort || 'en';
+
+    this.currentPage = page;
+    this.sortField = sort;
+
     this.fetchList();
     const dropdowns = document.querySelectorAll('.dropdown-trigger');
     M.Dropdown.init(dropdowns);
