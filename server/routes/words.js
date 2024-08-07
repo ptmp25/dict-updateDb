@@ -176,14 +176,13 @@ router.post("/upload_csv", upload.single("file"), async (req, res) => {
     .pipe(csv())
     .on("data", (row) => {
       const translations = {};
-
       // Extract translations for each language from CSV row
       Object.keys(row).forEach((language) => {
-        translations[language] = row[language]
+        const lowercaseTranslations = row[language]
           .split(",")
-          .map((word) => word.trim());
+          .map((word) => word.trim().toLowerCase());
+        translations[language.toLowerCase()] = lowercaseTranslations;
       });
-
       results.push({
         id: uuidv4(), // Assign a unique ID to each record
         translations: translations,
@@ -197,8 +196,8 @@ router.post("/upload_csv", upload.single("file"), async (req, res) => {
         // Build a set of existing translations to avoid duplicates
         const existingTranslations = new Set(
           existingWords.flatMap((word) =>
-            Array.from(word.translations.entries()).flatMap(
-              ([language, words]) => words.map((w) => `${language}:${w}`)
+            Object.entries(word.translations).flatMap(([language, words]) =>
+              words.map((w) => `${language}:${w}`)
             )
           )
         );

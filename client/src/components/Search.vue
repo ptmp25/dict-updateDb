@@ -1,5 +1,5 @@
 <template>
-  <div class="search-container">
+  <div class="container">
     <h2>Search</h2>
     <button @click="toggleIllustration" class="btn">
       {{ isIllustrating ? 'Hide Illustration' : 'Show Illustration' }}

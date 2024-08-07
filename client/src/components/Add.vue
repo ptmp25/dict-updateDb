@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h1>Add New Word</h1>
+        <h4>Add New Word</h4>
         <div class="">
             <p for="newLang">Add Language:</p>
             <select v-model="newLang" id="newLang" >
@@ -8,7 +8,9 @@
                 <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
             </select>
         </div>
-        <button @click="addLanguage" class="btn green lighten-1">Add</button>
+        <div class="right">
+            <button @click="addLanguage" class="btn right green lighten-1">Add</button>
+        </div>
         <div class="table-container" v-for="(meanings, code) in word.translations" :key="code">
             <table v-if="meanings.length !== 0">
                 <tr>
@@ -24,13 +26,15 @@
                                 placeholder="Enter word..." autocomplete="off"
                                 @keyup.enter="translateText(code, word.translations[code][index])" required />
                             <button class="btn red lighten-1" style="display:inline"
-                                @click="deleteMeaning(code, index)">Delete</button>
+                                @click="deleteMeaning(code, index)">Remove</button>
                         </div>
                     </td>
                 </tr>
             </table>
         </div>
-        <button class="btn right green" @click="create">Submit</button>
+        <div class="right">
+            <button class="btn green" @click="create">Submit</button>
+        </div>
     </div>
 </template>
 
@@ -112,6 +116,19 @@ export default {
             }
         },
         async create() {
+            if (Object.values(this.word.translations).flat().some((word) => word === "")) {
+                this.toast.error("Please fill in all the translations");
+                return;
+            }
+            if (Object.values(this.word.translations).flat().length < 2) {
+                this.toast.error("Please add at least 2 translations");
+                return;
+            }
+            const isEnglishDuplicated = Object.values(this.word.translations).flat().filter((word) => word === "en").length > 1;
+            if (isEnglishDuplicated) {
+                this.toast.error("English translation is duplicated");
+                return;
+            }
             try {
                 const response = await backendApi.saveWord(this.word);
                 const data = response.data;
