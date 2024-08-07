@@ -1,17 +1,22 @@
 <template>
   <div class="search-container">
     <h2>Search</h2>
-    <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word" />
-    <select name="view" class="input-field col s12" id="viewOption" v-model="language">
-      <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
-    </select>
-    <button @click="searchPost">Search</button>
-    <p class="error">{{ message }}</p>
+    <button @click="toggleIllustration" class="btn">
+      {{ isIllustrating ? 'Hide Illustration' : 'Show Illustration' }}
+    </button>
+    <div v-if="isIllustrating" class="illustration-container">
+      <select name="view" class="input-field col s12" style="display: block;">
+        <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
+      </select>
+      <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word" />
+      <button @click="searchPost" class="btn light-green">Search</button>
+      <p class="error">{{ message }}</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import BackendAPI from '../services/backendApi';
 import languages from '../hooks/languages';
@@ -30,6 +35,8 @@ const searchTerm = ref('');
 const language = ref('en');
 const message = ref('');
 const languagesDict = languages;
+const isIllustrating = ref(false);
+const originalWords = ref([]);
 
 const emit = defineEmits(['updateWords', 'updateLanguageList']);
 
@@ -55,9 +62,29 @@ const searchPost = async () => {
   }
 };
 
+const toggleIllustration = () => {
+  isIllustrating.value = !isIllustrating.value;
+  if (isIllustrating.value) {
+    // Store the current words and clear them
+    originalWords.value = [...props.words];
+    emit('updateWords', []);
+  } else {
+    // Restore the original words
+    emit('updateWords', originalWords.value);
+  }
+};
+
 onMounted(() => {
   var elems = document.querySelectorAll('select');
   var instances = M.FormSelect.init(elems);
+});
+
+watch(isIllustrating, (newValue) => {
+  if (!newValue) {
+    // Clear search term and message when illustration is turned off
+    searchTerm.value = '';
+    message.value = '';
+  }
 });
 </script>
 
@@ -68,5 +95,9 @@ onMounted(() => {
 
 .error {
   color: red;
+}
+
+.illustration-container {
+  margin-top: 10px;
 }
 </style>

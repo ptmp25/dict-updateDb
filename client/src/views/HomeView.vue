@@ -1,7 +1,8 @@
 <template>
   <Add @fetchList="fetchList" />
   <div id="vue_app" class="container">
-    <Search :languageList="languageList" @updateWords="updateWords" @updateLanguageList="updateLanguageList" />
+    <Search :languageList="languageList" :words="words" @updateWords="updateWords"
+      @updateLanguageList="updateLanguageList" />
     <button class="btn  light-blue accent-4" @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
     <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
