@@ -1,30 +1,51 @@
 <template>
     <div class="container">
         <h1>Edit Word</h1>
-        <div v-if="word">
-            <div v-for="( text, code) in word.translations">
-                <table class="table-container responsive-table centered">
-                    <tr>
-                        <td class="label">{{ languagesDict[code] }}</td>
-                        <td class="input">
-                            <div v-for="(meaning, index) in text" :key="index">
-                                <p>{{ meaning }}</p>
-                            </div>
-                        </td>
-                    </tr>
+        <div class="" v-if="word">
+            <p for="newLang">Add Language:</p>
+            <select v-model="newLang" id="newLang">
+                <option value="" disabled selected>Choose new language you want to add</option>
+                <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
+            </select>
+            <div class="flex justify-end">
+                <button @click="addLanguage" class="btn btn-success btn-sm">Add</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Language</th>
+                            <th>Meaning(s)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody v-for="(meanings, code) in word.translations" :key="code">
+                        <tr v-if="meanings.length !== 0">
+                            <th>{{ languagesDict[code] }}</th>
+                            <td>
+                                <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-bottom">
+                                    <input type="text" v-model="word.translations[code][index]"
+                                        :id="`input-${code}-${index}`" placeholder="Enter word..." autocomplete="off"
+                                        class="input w-full max-w-xs"
+                                        @keyup.enter="translateText(code, word.translations[code][index])" required />
+                                </div>
+                            </td>
+                            <td>
+                                <div v-for="(meaning, index) in meanings" :key="`delete-${code}-${index}`">
+                                    <button class="btn btn-error btn-outline btn-xs mt-2"
+                                        @click="deleteMeaning(code, index)">Remove</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
-            <button class="btn right" type="submit" @click="saveEdit">Save Changes</button>
-            <div>
-                <label for="newLang">Add Language:</label>
-                <select v-model="newLang" id="newLang">
-                    <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
-                </select>
-                <button @click="addLanguage">Add</button>
+            <div class="flex justify-end">
+                <button class="btn btn-success " @click="create">Submit</button>
             </div>
         </div>
         <div v-else>
-            <p>Word not found</p>
+            <p>Can't find word</p>
         </div>
     </div>
 </template>
@@ -44,13 +65,6 @@ export default {
         return {
             languagesDict: { ...languages },
             newLang: "",
-            word: {
-                en: '',
-                de: '',
-                fr: '',
-                vi: '',
-                others: {},
-            },
         };
     },
     setup() {
@@ -64,6 +78,7 @@ export default {
         onMounted(async () => {
             await getDetails(id);
             word.value = fetchedWord.value;
+            console.log(word.value);
         });
 
         return { id, word, toast };

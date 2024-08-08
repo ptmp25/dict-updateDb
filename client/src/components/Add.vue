@@ -3,7 +3,7 @@
         <div class="card-body">
             <p class="card-title">Add New Word</p>
             <button class="btn btn-primary" @click="toggleMode">{{ mode === 'manual' ? 'Switch to CSV Upload' : 'Switch to Manual Input' }}</button>
-            <div v-if="mode==='manual'" id="manual">
+            <div v-if="mode === 'manual'" id="manual">
                 <div class="">
                     <p for="newLang">Add Language:</p>
                     <select v-model="newLang" id="newLang">
@@ -28,14 +28,16 @@
                                 <th>{{ languagesDict[code] }}</th>
                                 <td>
                                     <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-bottom">
-                                        <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
-                                            placeholder="Enter word..." autocomplete="off" class="input w-full max-w-xs"
+                                        <input type="text" v-model="word.translations[code][index]"
+                                            :id="`input-${code}-${index}`" placeholder="Enter word..." autocomplete="off"
+                                            class="input w-full max-w-xs"
                                             @keyup.enter="translateText(code, word.translations[code][index])" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div v-for="(meaning, index) in meanings" :key="`delete-${code}-${index}`">
-                                        <button class="btn btn-error btn-outline btn-xs mt-2" @click="deleteMeaning(code, index)">Remove</button>
+                                        <button class="btn btn-error btn-outline btn-xs mt-2"
+                                            @click="deleteMeaning(code, index)">Remove</button>
                                     </div>
                                 </td>
                             </tr>
@@ -80,14 +82,14 @@ export default {
     setup() {
         const toast = useToast();
         const { word, translateText } = useTranslate();
-        return { toast, word, translateText  };
+        return { toast, word, translateText };
     },
     methods: {
         toggleMode() {
             this.mode = this.mode === 'manual' ? 'uploadCSV' : 'manual';
             if (this.mode === 'uploadCSV') {
                 // this.$refs.csvFileInput.click();
-            } 
+            }
         },
         addLanguage() {
             if (this.newLang === '') {

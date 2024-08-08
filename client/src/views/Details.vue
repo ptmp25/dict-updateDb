@@ -61,6 +61,7 @@ export default {
         onMounted(async () => {
             await getDetails(id);
             word.value = fetchedWord.value;
+            console.log(word.value);
         });
 
         return { word, editWord, error };
