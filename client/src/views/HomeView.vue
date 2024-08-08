@@ -43,14 +43,14 @@
                 </div>
               </td>
               <td>
-                <button v-if="editMode !== word.id" class="button-box btn blue"
+                <button v-if="editMode !== word.id" class="btn btn-xs btn blue"
                   @click="showDetails(word.id)">Details</button>
-                <button v-if="editMode !== word.id" class="button-box btn amber accent-2"
+                <button v-if="editMode !== word.id" class="btn btn-xs btn amber accent-2"
                   @click="editWord(word.id)">Edit</button>
-                <button v-if="editMode === word.id" class="button-box" @click="saveWord(word.id)">Save</button>
-                <button v-if="editMode !== word.id" class="button-box btn red lighten-1"
+                <button v-if="editMode === word.id" class="btn btn-xs" @click="saveWord(word.id)">Save</button>
+                <button v-if="editMode !== word.id" class="btn btn-xs btn red lighten-1 "
                   @click="deleteWord(word.id)">Delete</button>
-                <button v-if="editMode === word.id" class="button-box" @click="cancelEdit">Cancel</button>
+                <button v-if="editMode === word.id" class="btn btn-xs" @click="cancelEdit">Cancel</button>
               </td>
             </tr>
           </tbody>
@@ -208,7 +208,7 @@ export default {
     async saveWord(id) {
       const word = this.words.find((word) => word.id === id);
       try {
-        const response = await BackendAPI.updateWord(id, word);
+        const response = await BackendAPI.updateDetails(id, word);
         if (response.statusText !== "OK" || response.status !== 200) {
           if (data.code && data.code === 11000) {
             Toast.error("Duplicate translation found, please check!");

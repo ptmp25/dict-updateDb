@@ -1,8 +1,28 @@
 <template>
-    <div class="container">
-        <h1>Word Details</h1>
+    <div class="card"></div>
+    <div class="card-body">
+        <p class="card-title">Word Details</p>
         <div class="words" v-if="word">
-        
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Language</th>
+                            <th>Meaning(s)</th>
+                        </tr>
+                    </thead>
+                    <tbody v-for="(meanings, code) in word.translations" :key="code">
+                        <tr v-if="meanings.length !== 0">
+                            <th>{{ languagesDict[code] }}</th>
+                            <td>
+                                <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-b">
+                                    <p>{{word.translations[code][index]}}</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <router-link to="/edit" class="btn right" @click="editWord">Edit</router-link>
         </div>
         <div v-else>

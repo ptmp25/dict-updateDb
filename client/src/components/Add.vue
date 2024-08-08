@@ -27,23 +27,23 @@
                             <tr v-if="meanings.length !== 0">
                                 <th>{{ languagesDict[code] }}</th>
                                 <td>
-                                    <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-b">
+                                    <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-bottom">
                                         <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
-                                            placeholder="Enter word..." autocomplete="off"
+                                            placeholder="Enter word..." autocomplete="off" class="input w-full max-w-xs"
                                             @keyup.enter="translateText(code, word.translations[code][index])" required />
                                     </div>
                                 </td>
                                 <td>
                                     <div v-for="(meaning, index) in meanings" :key="`delete-${code}-${index}`">
-                                        <button class="btn btn-error btn-outline btn-xs mt-2 border" @click="deleteMeaning(code, index)">Remove</button>
+                                        <button class="btn btn-error btn-outline btn-xs mt-2" @click="deleteMeaning(code, index)">Remove</button>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="right">
-                    <button class="btn green" @click="create">Submit</button>
+                <div class="flex justify-end">
+                    <button class="btn btn-success " @click="create">Submit</button>
                 </div>
             </div>
             <div v-else id="uploadCSV">

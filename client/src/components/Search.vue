@@ -6,11 +6,13 @@
         {{ isIllustrating ? 'Hide Illustration' : 'Show Illustration' }}
       </button>
       <div v-if="isIllustrating" class="illustration-container">
-        <select name="view" class="input-field col s12" style="display: block;">
-          <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
-        </select>
-        <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word" />
-        <button @click="searchPost" class="btn light-green">Search</button>
+        <div class="flex items-center space-x-4">
+          <select name="view" class="select select-bordered w-full max-w-xs">
+            <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
+          </select>
+          <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word" class="input input-bordered w-full max-w-xs" />
+          <button @click="searchPost" class="btn btn-info">Search</button>
+        </div>
         <p class="error">{{ message }}</p>
       </div>
     </div>
