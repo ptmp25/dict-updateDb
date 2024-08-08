@@ -1,46 +1,48 @@
 <template>
-    <div class="container">
-        <p class="title">Add New Word</p>
-        <button class="btn" @click="toggleMode">{{ mode === 'manual' ? 'Switch to CSV Upload' : 'Switch to Manual Input' }}</button>
-        <div v-if="mode==='manual'" id="manual">
-            <div class="">
-                <p for="newLang">Add Language:</p>
-                <select v-model="newLang" id="newLang">
-                    <option value="" disabled selected>Choose new language you want to add</option>
-                    <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
-                </select>
+    <div class="card bg-base-100 w-10/12 my-2.5  mx-auto shadow-xl">
+        <div class="card-body">
+            <p class="card-title">Add New Word</p>
+            <button class="btn btn-info" @click="toggleMode">{{ mode === 'manual' ? 'Switch to CSV Upload' : 'Switch to Manual Input' }}</button>
+            <div v-if="mode==='manual'" id="manual">
+                <div class="">
+                    <p for="newLang">Add Language:</p>
+                    <select v-model="newLang" id="newLang">
+                        <option value="" disabled selected>Choose new language you want to add</option>
+                        <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
+                    </select>
+                </div>
+                <div class="right">
+                    <button @click="addLanguage" class="btn right green lighten-1">Add</button>
+                </div>
+                <div class="table-container" v-for="(meanings, code) in word.translations" :key="code">
+                    <table v-if="meanings.length !== 0">
+                        <tr>
+                            <!-- First column: Language name -->
+                            <td class="label blue-grey lighten-5">
+                                {{ languagesDict[code] }}
+                            </td>
+    
+                            <!-- All meanings for the language in one cell -->
+                            <td class="input">
+                                <div v-for="(meaning, index) in meanings" :key="index" class="sameline">
+                                    <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
+                                        placeholder="Enter word..." autocomplete="off"
+                                        @keyup.enter="translateText(code, word.translations[code][index])" required />
+                                    <button class="btn btn-error" style="display:inline"
+                                        @click="deleteMeaning(code, index)">Remove</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="right">
+                    <button class="btn green" @click="create">Submit</button>
+                </div>
             </div>
-            <div class="right">
-                <button @click="addLanguage" class="btn right green lighten-1">Add</button>
+            <div v-else id="uploadCSV">
+                <input class="upload" type="file" @change="onFileChange" ref="csvFileInput" />
+                <button class="btn" @click="uploadCSV">Upload CSV</button>
             </div>
-            <div class="table-container" v-for="(meanings, code) in word.translations" :key="code">
-                <table v-if="meanings.length !== 0">
-                    <tr>
-                        <!-- First column: Language name -->
-                        <td class="label blue-grey lighten-5">
-                            {{ languagesDict[code] }}
-                        </td>
-
-                        <!-- All meanings for the language in one cell -->
-                        <td class="input">
-                            <div v-for="(meaning, index) in meanings" :key="index" class="sameline">
-                                <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
-                                    placeholder="Enter word..." autocomplete="off"
-                                    @keyup.enter="translateText(code, word.translations[code][index])" required />
-                                <button class="btn btn-error" style="display:inline"
-                                    @click="deleteMeaning(code, index)">Remove</button>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div class="right">
-                <button class="btn green" @click="create">Submit</button>
-            </div>
-        </div>
-        <div v-else id="uploadCSV">
-            <input class="upload" type="file" @change="onFileChange" ref="csvFileInput" />
-            <button class="btn" @click="uploadCSV">Upload CSV</button>
         </div>
     </div>
 </template>

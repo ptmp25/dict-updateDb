@@ -1,16 +1,18 @@
 <template>
-  <div class="container">
-    <h2>Search</h2>
-    <button @click="toggleIllustration" class="btn">
-      {{ isIllustrating ? 'Hide Illustration' : 'Show Illustration' }}
-    </button>
-    <div v-if="isIllustrating" class="illustration-container">
-      <select name="view" class="input-field col s12" style="display: block;">
-        <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
-      </select>
-      <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word" />
-      <button @click="searchPost" class="btn light-green">Search</button>
-      <p class="error">{{ message }}</p>
+  <div class="card bg-base-100  w-10/12 my-2.5 mx-auto shadow-xl">
+    <div class="card-body">
+      <p class="card-title">Search</p>
+      <button @click="toggleIllustration" class="btn">
+        {{ isIllustrating ? 'Hide Illustration' : 'Show Illustration' }}
+      </button>
+      <div v-if="isIllustrating" class="illustration-container">
+        <select name="view" class="input-field col s12" style="display: block;">
+          <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
+        </select>
+        <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word" />
+        <button @click="searchPost" class="btn light-green">Search</button>
+        <p class="error">{{ message }}</p>
+      </div>
     </div>
   </div>
 </template>

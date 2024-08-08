@@ -2,60 +2,66 @@
   <Add @fetchList="fetchList" />
   <Search :languageList="languageList" :words="words" @updateWords="updateWords"
     @updateLanguageList="updateLanguageList" />
-  <div id="vue_app" class="container">
-    <button class="btn " @click="downloadCSV">Download CSV</button>
-    <label for="sort">Sort by:</label>
-    <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
-      <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
-    </select>
-    <label for="view">View</label>
-    <select name="view" class="input-field col s12" id="viewOption" v-model="viewOption">
-      <option v-for="(name, code) in languagesDict" :key="code" :value="code">{{ name }}</option>
-    </select>
-    <button @click="viewWord">Add</button>
-    <table class="highlight">
-      <thead>
-        <tr>
-          <th v-for="(code, index) in languageList" :key="code">{{ languagesDict[code] }}
-            <button @click="removeCode(index)" v-if="languageList.length > 2">-</button>
-          </th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="word in words" :key="word.id">
-          <td v-for="code in languageList" :key="code">
-            <div v-if="editMode === word.id">
-              <div v-for="(meaning, index) in word.translations[code]" :key="index">
-                <input type="text" v-model="word.translations[code][index]" placeholder="Enter translation..." />
-              </div>
-            </div>
-            <div v-else>
-              <template v-for="(value, index) in word.translations[code]">
-                <p v-if="word.translations[code].length > 1">{{ index + 1 }}. {{ value }}</p>
-                <p v-else>{{ value }}</p>
-              </template>
-            </div>
-          </td>
-          <td>
-            <button v-if="editMode !== word.id" class="button-box btn blue" @click="showDetails(word.id)">Details</button>
-            <button v-if="editMode !== word.id" class="button-box btn amber accent-2"
-              @click="editWord(word.id)">Edit</button>
-            <button v-if="editMode === word.id" class="button-box" @click="saveWord(word.id)">Save</button>
-            <button v-if="editMode !== word.id" class="button-box btn red lighten-1"
-              @click="deleteWord(word.id)">Delete</button>
-            <button v-if="editMode === word.id" class="button-box" @click="cancelEdit">Cancel</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="pagination">
-      <button v-show="currentPage !== 1" @click="goToPage(currentPage - 1)">Previous</button>
-      <button v-for="page in pageNumbers" :key="page" @click="goToPage(page)"
-        :class="{ active: page === currentPage, disabled: page === '...' }">
-        {{ page }}
-      </button>
-      <button v-show="currentPage !== totalPages" @click="goToPage(currentPage + 1)">Next</button>
+  <div class="card bg-base-100 w-10/12 my-2.5 shadow-xl mx-auto">
+    <div class="card-body">
+      <button class="btn " @click="downloadCSV">Download CSV</button>
+      <label for="sort">Sort by:</label>
+      <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
+        <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
+      </select>
+      <label for="view">View</label>
+      <select name="view" class="input-field col s12" id="viewOption" v-model="viewOption">
+        <option v-for="(name, code) in languagesDict" :key="code" :value="code">{{ name }}</option>
+      </select>
+      <button class="btn" @click="viewWord">Add</button>
+      <div class="overflow-x-auto">
+
+        <table class="table table-xs table-pin-rows ">
+          <thead>
+            <tr>
+              <th v-for="(code, index) in languageList" class="text-xl" :key="code">{{ languagesDict[code] }}
+                <button @click="removeCode(index)" v-if="languageList.length > 2">-</button>
+              </th>
+              <th  class="text-xl" >Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="word in words" :key="word.id" class="hover">
+              <td v-for="code in languageList" :key="code">
+                <div v-if="editMode === word.id">
+                  <div v-for="(meaning, index) in word.translations[code]" :key="index">
+                    <input type="text" v-model="word.translations[code][index]" placeholder="Enter translation..." />
+                  </div>
+                </div>
+                <div v-else>
+                  <template v-for="(value, index) in word.translations[code]">
+                    <p v-if="word.translations[code].length > 1">{{ index + 1 }}. {{ value }}</p>
+                    <p v-else>{{ value }}</p>
+                  </template>
+                </div>
+              </td>
+              <td>
+                <button v-if="editMode !== word.id" class="button-box btn blue"
+                  @click="showDetails(word.id)">Details</button>
+                <button v-if="editMode !== word.id" class="button-box btn amber accent-2"
+                  @click="editWord(word.id)">Edit</button>
+                <button v-if="editMode === word.id" class="button-box" @click="saveWord(word.id)">Save</button>
+                <button v-if="editMode !== word.id" class="button-box btn red lighten-1"
+                  @click="deleteWord(word.id)">Delete</button>
+                <button v-if="editMode === word.id" class="button-box" @click="cancelEdit">Cancel</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="join flex justify-center">
+        <button class="join-item btn" v-show="currentPage !== 1" @click="goToPage(currentPage - 1)">Previous</button>
+        <button class="join-item btn" v-for="page in pageNumbers" :key="page" @click="goToPage(page)"
+          :class="{ 'btn-active': page === currentPage, 'disabled': page === '...' }">
+          {{ page }}
+        </button>
+        <button class="join-item btn" v-show="currentPage !== totalPages" @click="goToPage(currentPage + 1)">Next</button>
+      </div>
     </div>
   </div>
 </template>
@@ -182,6 +188,12 @@ export default {
     },
     editWord(id) {
       this.editMode = id;
+      const word = this.words.find((word) => word.id === id);
+      for (const code of this.languageList) {
+        if (!word.translations[code]) {
+          word.translations[code] = [''];
+        }
+}
     },
     async saveWord(id) {
       const word = this.words.find((word) => word.id === id);
