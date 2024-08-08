@@ -51,6 +51,7 @@
 import languages from '../hooks/languages';
 import backendApi from '../services/backendApi';
 import { useToast } from 'vue-toastification';
+import useTranslate from '../hooks/useTranslate';
 
 export default {
     emits: ['fetchList'], // Declare the custom event here
@@ -71,7 +72,8 @@ export default {
     },
     setup() {
         const toast = useToast();
-        return { toast };
+        const { word, translateText } = useTranslate();
+        return { toast, word, translateText  };
     },
     methods: {
         toggleMode() {
@@ -97,39 +99,6 @@ export default {
             console.log('delete', this.word.translations[code]);
             this.word.translations[code].splice(index, 1);
             console.log('delete', this.word.translations[code]);
-        },
-
-        async translateText(sourceLang, sourceText) {
-            try {
-                if (sourceText !== "") {
-                    for (const targetLang of Object.keys(this.word.translations)) {
-                        for (const index in this.word.translations[targetLang]) {
-                            if (this.word.translations[targetLang][index] === "" && targetLang !== sourceLang) {
-                                const response = await backendApi.translateText(
-                                    sourceText,
-                                    sourceLang,
-                                    targetLang
-                                );
-                                this.word.translations[targetLang][index] = response.translatedText;
-                            }
-                        }
-                    }
-                    this.toast.success("Translation successful!");
-                } else {
-                    for (const targetLang of Object.keys(this.word.others)) {
-                        if (this.word.others[targetLang] === "" && targetLang !== sourceLang) {
-                            const response = await backendApi.translateText(
-                                sourceText,
-                                targetLang
-                            );
-                            this.word.others[targetLang] = response.translatedText;
-                        }
-                    }
-                }
-            } catch (error) {
-                this.toast.error("An error occurred while translating the text");
-                console.error(error);
-            }
         },
         async create() {
             if (Object.values(this.word.translations).flat().some((word) => word === "")) {

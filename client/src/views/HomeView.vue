@@ -22,15 +22,17 @@
               <th v-for="(code, index) in languageList" class="text-xl" :key="code">{{ languagesDict[code] }}
                 <button @click="removeCode(index)" v-if="languageList.length > 2">-</button>
               </th>
-              <th  class="text-xl" >Actions</th>
+              <th class="text-xl">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="word in words" :key="word.id" class="hover">
               <td v-for="code in languageList" :key="code">
                 <div v-if="editMode === word.id">
-                  <div v-for="(meaning, index) in word.translations[code]" :key="index">
-                    <input type="text" v-model="word.translations[code][index]" placeholder="Enter translation..." />
+                  <div v-for="(meaning, index) in word.translations[code]" :key="index" class="sameline">
+                    <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
+                      placeholder="Enter word..." autocomplete="off"
+                      @keyup.enter="translate(code, word.translations[code][index])" />
                   </div>
                 </div>
                 <div v-else>
@@ -75,6 +77,7 @@ import { useRoute, useRouter } from 'vue-router';
 import languages from "../hooks/languages";
 import Add from '../components/Add.vue';
 import Search from '../components/Search.vue';
+import useTranslate from "../hooks/useTranslate";
 
 export default {
   data() {
@@ -94,11 +97,18 @@ export default {
     const toast = useToast();
     const route = useRoute();
     const router = useRouter();
+    const { word, translateText } = useTranslate();
+
+    const translate = (sourceLang, sourceText) => {
+      translateText(sourceLang, sourceText);
+    };
 
     return {
       toast,
       route,
-      router
+      router,
+      word,
+      translate,
     };
   },
   components: {
@@ -181,7 +191,7 @@ export default {
     },
     async showDetails(id) {
       try {
-        router.push({ name: 'Details', params: { id } });
+        router.push({ name: 'details', params: { id } });
       } catch (error) {
         console.error('Error navigating to details:', error);
       }
@@ -193,7 +203,7 @@ export default {
         if (!word.translations[code]) {
           word.translations[code] = [''];
         }
-}
+      }
     },
     async saveWord(id) {
       const word = this.words.find((word) => word.id === id);
