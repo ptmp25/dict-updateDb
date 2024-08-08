@@ -72,19 +72,35 @@ router.get("/read_list", async (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
+  console.log("searching words");
   try {
     const query = req.query.q;
     const language = req.query.language || "en"; // default to 'english' if not provided
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
 
     const words = await Word.find({
       [`translations.${language}`]: { $regex: query, $options: "i" },
-    }).lean();
+    })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const total = await Word.countDocuments({
+      [`translations.${language}`]: { $regex: query, $options: "i" },
+    });
 
     if (!words.length) {
       return res.status(404).json({ message: "No words found" });
     }
 
-    res.json({ result: Constant.OK_CODE, data: words });
+    res.json({
+      result: Constant.OK_CODE,
+      data: words,
+      page,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (err) {
     console.error("Error searching words:", err);
     res.status(500).json({ message: "Server Error" });

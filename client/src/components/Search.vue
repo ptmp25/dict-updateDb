@@ -49,10 +49,13 @@ const searchPost = async () => {
     toast('Please enter a search term');
   } else {
     try {
-      const response = await BackendAPI.searchWord(searchTerm.value, language.value);
+      const page = 1; // replace with your actual page number
+      const limit = 10; // replace with your actual limit
+      const response = await BackendAPI.searchWord(searchTerm.value, language.value, page, limit);
       const results = response.data.data;
       if (results && results.length > 0) {
         emit('updateWords', results);
+        
         message.value = '';
       } else {
         message.value = 'No results found';

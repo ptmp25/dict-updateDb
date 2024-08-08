@@ -86,16 +86,16 @@ export default {
       throw error;
     }
   },
-  async searchWord(searchTerm, language) {
-    try {
-      const response = await apiClient.get("/words/search", {
-        params: { q: searchTerm, language },
-      });
-      return response;
-    } catch (error) {
-      console.error("Error searching word:", error);
-      throw error;
-    }
+  async searchWord(term, language, page, limit)  {
+    const response = await apiClient.get("/words/search", {
+      params: {
+        q: term,
+        language,
+        page,
+        limit,
+      },
+    });
+    return response;
   },
   async saveWord(wordData) {
     try {
