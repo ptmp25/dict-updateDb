@@ -77,12 +77,12 @@ export default {
         const { word: fetchedWord, error, getDetails } = useDetails();
         const toast = useToast();
         
+        const { word, translateText } = useTranslate();
         onMounted(async () => {
             await getDetails(id);
             word.value = fetchedWord.value;
             console.log(word.value);
         });
-        const { word, translateText } = useTranslate();
 
         return { id, word, toast, translateText };
     },
@@ -123,73 +123,10 @@ export default {
                     }
                 } else {
                     this.toast.success("Word updated successfully");
+                    router.push({ name: 'details', params: { id: this.id } });
                 }
             } catch (error) {
                 this.toast.error("An error occurred while updating the word");
-                console.error(error);
-            }
-        },
-
-        async translateText(sourceLang, sourceText) {
-            try {
-                if (sourceText !== "") {
-                    console.log(sourceText, sourceLang);
-                    if (this.word.en === "") {
-                        const response = await backendApi.translateText(
-                            sourceText,
-                            sourceLang,
-                            "en",
-                        );
-                        this.word.en = response.translatedText;
-                    }
-                    if (this.word.de === "") {
-                        const response = await backendApi.translateText(
-                            sourceText,
-                            sourceLang,
-                            "de",
-                        );
-                        this.word.de = response.translatedText;
-                    }
-                    if (this.word.fr === "") {
-                        const response = await backendApi.translateText(
-                            sourceText,
-                            sourceLang,
-                            "fr",
-                        );
-                        this.word.fr = response.translatedText;
-                    }
-                    if (this.word.vi === "") {
-                        const response = await backendApi.translateText(
-                            sourceText,
-                            sourceLang,
-                            "vi",
-                        );
-                        this.word.vi = response.translatedText;
-                    }
-                    for (const targetLang of Object.keys(this.word.others)) {
-                        if (this.word.others[targetLang] === "" && targetLang !== sourceLang) {
-                            const response = await backendApi.translateText(
-                                sourceText,
-                                sourceLang,
-                                targetLang,
-                            );
-                            this.word.others[targetLang] = response.translatedText;
-                        }
-                    }
-                    this.toast.success("Translation successful!");
-                } else {
-                    for (const targetLang of Object.keys(this.word.others)) {
-                        if (this.word.others[targetLang] === "" && targetLang !== sourceLang) {
-                            const response = await backendApi.translateText(
-                                sourceText,
-                                targetLang
-                            );
-                            this.word.others[targetLang] = response.translatedText;
-                        }
-                    }
-                }
-            } catch (error) {
-                // this.toast.error("An error occurred while translating the text");
                 console.error(error);
             }
         },
