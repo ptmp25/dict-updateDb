@@ -1,14 +1,17 @@
 <template>
-    <div class="container">
-        <h1>Edit Word</h1>
+    <div class="card-body">
+        <p class="card-title">Edit Word</p>
         <div class="" v-if="word">
-            <p for="newLang">Add Language:</p>
-            <select v-model="newLang" id="newLang">
-                <option value="" disabled selected>Choose new language you want to add</option>
-                <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
-            </select>
-            <div class="flex justify-end">
-                <button @click="addLanguage" class="btn btn-success btn-sm">Add</button>
+            <div class="flex items-center justify-between space-x-4">
+                <p for="newLang">Add Language:</p>
+
+                <select  class="select select-bordered w-8/12 dropdown-content menu" v-model="newLang" id="newLang">
+                    <option value="" disabled selected>Choose new language you want to add</option>
+                    <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
+                </select>
+                <div class="flex justify-end">
+                    <button @click="addLanguage" class="btn btn-success btn">Add</button>
+                </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="table">
@@ -23,15 +26,15 @@
                         <tr v-if="meanings.length !== 0">
                             <th>{{ languagesDict[code] }}</th>
                             <td>
-                                <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-bottom">
+                                <div v-for="(meaning, index) in meanings" :key="index" class="mt-2">
                                     <input type="text" v-model="word.translations[code][index]"
                                         :id="`input-${code}-${index}`" placeholder="Enter word..." autocomplete="off"
-                                        class="input w-full max-w-xs"
+                                        class="input input-bordered w-full max-w-xs"
                                         @keyup.enter="translateText(code, word.translations[code][index])" required />
                                 </div>
                             </td>
                             <td>
-                                <div v-for="(meaning, index) in meanings" :key="`delete-${code}-${index}`">
+                                <div class="flex justify-center items-center" v-for="(meaning, index) in meanings" :key="`delete-${code}-${index}`">
                                     <button class="btn btn-error btn-outline btn-xs mt-2"
                                         @click="deleteMeaning(code, index)">Remove</button>
                                 </div>
@@ -41,7 +44,7 @@
                 </table>
             </div>
             <div class="flex justify-end">
-                <button class="btn btn-success " @click="create">Submit</button>
+                <button class="btn btn-success " @click="saveEdit">Submit</button>
             </div>
         </div>
         <div v-else>
@@ -58,7 +61,7 @@ import useDetails from '../hooks/useDetails';
 import { useToast } from 'vue-toastification'
 import languages from '../hooks/languages';
 import backendApi from '../services/backendApi'; // Ensure this path is correct
-
+import useTranslate from '../hooks/useTranslate';
 
 export default {
     data() {
@@ -70,30 +73,40 @@ export default {
     setup() {
         const route = useRoute();
 
-        const word = ref(null);
         const id = route.params.id;
         const { word: fetchedWord, error, getDetails } = useDetails();
         const toast = useToast();
-
+        
         onMounted(async () => {
             await getDetails(id);
             word.value = fetchedWord.value;
             console.log(word.value);
         });
+        const { word, translateText } = useTranslate();
 
-        return { id, word, toast };
+        return { id, word, toast, translateText };
     },
     methods: {
         addLanguage() {
-            // console.log(this.word);
-            if (this.newLang && !this.word.others[this.newLang]) {
-                this.word.others[this.newLang] = '';
-                this.newLang = '';
-            } else if (this.word.others[this.newLang]) {
-                this.toast.error('Language already exists');
-            } else {
-                this.toast.error('Please select a language');
+            if (this.newLang === '') {
+                console.log('Please select a language to add');
+                this.toast.error('Please select a language to add');
+                return;
             }
+            if (this.word.translations[this.newLang]) {
+                this.word.translations[this.newLang].push('');
+            } else {
+                this.word.translations[this.newLang] = [''];
+            }
+            console.log('add', this.newLang);
+        },
+        deleteMeaning(code, index) {
+            if (!confirm('Are you sure you want to delete this translation?')) {
+                return;
+            }
+            console.log('delete', this.word.translations[code]);
+            this.word.translations[code].splice(index, 1);
+            console.log('delete', this.word.translations[code]);
         },
         async saveEdit() {
             try {

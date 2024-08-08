@@ -105,6 +105,9 @@ export default {
             console.log('add', this.newLang);
         },
         deleteMeaning(code, index) {
+            if (!confirm('Are you sure you want to delete this translation?')) {
+                return;
+            }
             console.log('delete', this.word.translations[code]);
             this.word.translations[code].splice(index, 1);
             console.log('delete', this.word.translations[code]);

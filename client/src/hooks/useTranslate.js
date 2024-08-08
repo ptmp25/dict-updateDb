@@ -17,15 +17,17 @@ export default function useTranslate() {
         try {
             console.log(word.value);
             if (sourceText !== "") {
-                for (const targetLang of Object.keys(word.value.translations)) {
-                    for (const index in word.value.translations[targetLang]) {
-                        if (word.value.translations[targetLang][index] === "" && targetLang !== sourceLang) {
-                            const response = await backendApi.translateText(
-                                sourceText,
-                                sourceLang,
-                                targetLang
-                            );
-                            word.value.translations[targetLang][index] = response.translatedText;
+                if (word.value.translations) { // Add null check
+                    for (const targetLang of Object.keys(word.value.translations)) {
+                        for (const index in word.value.translations[targetLang]) {
+                            if (word.value.translations[targetLang][index] === "" && targetLang !== sourceLang) {
+                                const response = await backendApi.translateText(
+                                    sourceText,
+                                    sourceLang,
+                                    targetLang
+                                );
+                                word.value.translations[targetLang][index] = response.translatedText;
+                            }
                         }
                     }
                 }
