@@ -2,7 +2,7 @@
     <div class="card bg-base-100 w-10/12 my-2.5  mx-auto shadow-xl">
         <div class="card-body">
             <p class="card-title">Add New Word</p>
-            <button class="btn btn-info" @click="toggleMode">{{ mode === 'manual' ? 'Switch to CSV Upload' : 'Switch to Manual Input' }}</button>
+            <button class="btn btn-primary" @click="toggleMode">{{ mode === 'manual' ? 'Switch to CSV Upload' : 'Switch to Manual Input' }}</button>
             <div v-if="mode==='manual'" id="manual">
                 <div class="">
                     <p for="newLang">Add Language:</p>
@@ -11,28 +11,35 @@
                         <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
                     </select>
                 </div>
-                <div class="right">
-                    <button @click="addLanguage" class="btn right green lighten-1">Add</button>
+                <div class="flex justify-end">
+                    <button @click="addLanguage" class="btn btn-success btn-sm">Add</button>
                 </div>
-                <div class="table-container" v-for="(meanings, code) in word.translations" :key="code">
-                    <table v-if="meanings.length !== 0">
-                        <tr>
-                            <!-- First column: Language name -->
-                            <td class="label blue-grey lighten-5">
-                                {{ languagesDict[code] }}
-                            </td>
-    
-                            <!-- All meanings for the language in one cell -->
-                            <td class="input">
-                                <div v-for="(meaning, index) in meanings" :key="index" class="sameline">
-                                    <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
-                                        placeholder="Enter word..." autocomplete="off"
-                                        @keyup.enter="translateText(code, word.translations[code][index])" required />
-                                    <button class="btn btn-error" style="display:inline"
-                                        @click="deleteMeaning(code, index)">Remove</button>
-                                </div>
-                            </td>
-                        </tr>
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Language</th>
+                                <th>Meaning(s)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="(meanings, code) in word.translations" :key="code">
+                            <tr v-if="meanings.length !== 0">
+                                <th>{{ languagesDict[code] }}</th>
+                                <td>
+                                    <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-b">
+                                        <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
+                                            placeholder="Enter word..." autocomplete="off"
+                                            @keyup.enter="translateText(code, word.translations[code][index])" required />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div v-for="(meaning, index) in meanings" :key="`delete-${code}-${index}`">
+                                        <button class="btn btn-error btn-outline btn-xs mt-2 border" @click="deleteMeaning(code, index)">Remove</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
                 <div class="right">

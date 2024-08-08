@@ -2,18 +2,7 @@
     <div class="container">
         <h1>Word Details</h1>
         <div class="words" v-if="word">
-            <div v-for="( text, code) in word.translations">
-                <table class="table-container responsive-table centered">
-                    <tr>
-                        <td class="label">{{ languagesDict[code] }}</td>
-                        <td class="input">
-                            <div v-for="(meaning, index) in text" :key="index">
-                                <p>{{ meaning }}</p>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+        
             <router-link to="/edit" class="btn right" @click="editWord">Edit</router-link>
         </div>
         <div v-else>

@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add a line under the div */
+.border::after {
+    content: "";
+    display: block;
+    height: 1px;
+    background-color: black;
+}
