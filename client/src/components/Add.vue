@@ -1,39 +1,46 @@
 <template>
     <div class="container">
-        <h4>Add New Word</h4>
-        <div class="">
-            <p for="newLang">Add Language:</p>
-            <select v-model="newLang" id="newLang" >
-                <option value="" disabled selected>Choose new language you want to add</option>
-                <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
-            </select>
-        </div>
-        <div class="right">
-            <button @click="addLanguage" class="btn right green lighten-1">Add</button>
-        </div>
-        <div class="table-container" v-for="(meanings, code) in word.translations" :key="code">
-            <table v-if="meanings.length !== 0">
-                <tr>
-                    <!-- First column: Language name -->
-                    <td class="label blue-grey lighten-5">
-                        {{ languagesDict[code] }}
-                    </td>
+        <p class="title">Add New Word</p>
+        <button class="btn" @click="toggleMode">{{ mode === 'manual' ? 'Switch to CSV Upload' : 'Switch to Manual Input' }}</button>
+        <div v-if="mode==='manual'" id="manual">
+            <div class="">
+                <p for="newLang">Add Language:</p>
+                <select v-model="newLang" id="newLang">
+                    <option value="" disabled selected>Choose new language you want to add</option>
+                    <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
+                </select>
+            </div>
+            <div class="right">
+                <button @click="addLanguage" class="btn right green lighten-1">Add</button>
+            </div>
+            <div class="table-container" v-for="(meanings, code) in word.translations" :key="code">
+                <table v-if="meanings.length !== 0">
+                    <tr>
+                        <!-- First column: Language name -->
+                        <td class="label blue-grey lighten-5">
+                            {{ languagesDict[code] }}
+                        </td>
 
-                    <!-- All meanings for the language in one cell -->
-                    <td class="input">
-                        <div v-for="(meaning, index) in meanings" :key="index" class="sameline">
-                            <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
-                                placeholder="Enter word..." autocomplete="off"
-                                @keyup.enter="translateText(code, word.translations[code][index])" required />
-                            <button class="btn red lighten-1" style="display:inline"
-                                @click="deleteMeaning(code, index)">Remove</button>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+                        <!-- All meanings for the language in one cell -->
+                        <td class="input">
+                            <div v-for="(meaning, index) in meanings" :key="index" class="sameline">
+                                <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
+                                    placeholder="Enter word..." autocomplete="off"
+                                    @keyup.enter="translateText(code, word.translations[code][index])" required />
+                                <button class="btn btn-error" style="display:inline"
+                                    @click="deleteMeaning(code, index)">Remove</button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="right">
+                <button class="btn green" @click="create">Submit</button>
+            </div>
         </div>
-        <div class="right">
-            <button class="btn green" @click="create">Submit</button>
+        <div v-else id="uploadCSV">
+            <input class="upload" type="file" @change="onFileChange" ref="csvFileInput" />
+            <button class="btn" @click="uploadCSV">Upload CSV</button>
         </div>
     </div>
 </template>
@@ -57,6 +64,7 @@ export default {
             },
             languagesDict: { ...languages },
             newLang: '',
+            mode: 'manual', // start in 'manual' mode
         };
     },
     setup() {
@@ -64,6 +72,12 @@ export default {
         return { toast };
     },
     methods: {
+        toggleMode() {
+            this.mode = this.mode === 'manual' ? 'uploadCSV' : 'manual';
+            if (this.mode === 'uploadCSV') {
+                // this.$refs.csvFileInput.click();
+            } 
+        },
         addLanguage() {
             if (this.newLang === '') {
                 console.log('Please select a language to add');
@@ -159,6 +173,28 @@ export default {
                 console.error(error);
             }
         },
+        onFileChange(event) {
+            this.csvFile = event.target.files[0];
+        },
+        async uploadCSV() {
+            if (!this.csvFile) {
+                this.toast.error('Please select a CSV file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', this.csvFile);
+
+            try {
+                const response = await backendApi.uploadCSV(formData);
+                this.toast.success("CSV uploaded successfully");
+            } catch (error) {
+                this.toast.error(error.response?.data?.message || 'An error occurred');
+            }
+        },
     },
+    onMounted() {
+        console.log('mounted');
+    }
 };
 </script>

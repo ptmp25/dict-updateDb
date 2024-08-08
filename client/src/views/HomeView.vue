@@ -3,7 +3,7 @@
   <Search :languageList="languageList" :words="words" @updateWords="updateWords"
     @updateLanguageList="updateLanguageList" />
   <div id="vue_app" class="container">
-    <button class="btn  light-blue accent-4" @click="downloadCSV">Download CSV</button>
+    <button class="btn " @click="downloadCSV">Download CSV</button>
     <label for="sort">Sort by:</label>
     <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
       <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
@@ -69,7 +69,6 @@ import { useRoute, useRouter } from 'vue-router';
 import languages from "../hooks/languages";
 import Add from '../components/Add.vue';
 import Search from '../components/Search.vue';
-import M from 'materialize-css';
 
 export default {
   data() {
@@ -141,7 +140,9 @@ export default {
         this.toast.warning('You must have at least 2 languages');
         return;
       }
+      console.log('remove', this.languageList[index]);
       this.languageList.splice(index, 1);
+      console.log('languageList', this.languageList);
     },
     async sortList(sortField) {
       try {
@@ -272,8 +273,6 @@ export default {
     this.sortField = sort;
 
     this.fetchList();
-    const dropdowns = document.querySelectorAll('.dropdown-trigger');
-    M.Dropdown.init(dropdowns);
   },
 };
 

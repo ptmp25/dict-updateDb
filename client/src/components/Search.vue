@@ -20,7 +20,6 @@ import { ref, onMounted, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import BackendAPI from '../services/backendApi';
 import languages from '../hooks/languages';
-import M from 'materialize-css';
 
 const toast = useToast();
 
@@ -82,8 +81,6 @@ const toggleIllustration = () => {
 };
 
 onMounted(() => {
-  var elems = document.querySelectorAll('select');
-  var instances = M.FormSelect.init(elems);
 });
 
 watch(isIllustrating, (newValue) => {
