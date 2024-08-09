@@ -20,9 +20,24 @@ router.post("/save", async (req, res) => {
     // console.log("Received wordData:", wordData);
 
     const newWord = new Word(wordData);
-    const existingWord = await Word.findOne({
-      "translations.en": wordData.translations.en,
-    }).exec();
+    for (const language in wordData.translations) {
+      for( const word of wordData.translations[language]){
+        const existingWord = await Word.findOne({
+          [`translations.${language}`]: word,
+        }).exec();
+        if (existingWord) {
+          return res.json({
+            status: 200,
+            result: Constant.FAILED_CODE,
+            code: 11000,
+            message: "Word already exists",
+          });
+        }
+      }
+    }
+    // const existingWord = await Word.findOne({
+    //   "translations.en": wordData.translations.en,
+    // }).exec();
     if (existingWord) {
       return res.json({
         status: 200,

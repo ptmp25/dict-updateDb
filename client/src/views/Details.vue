@@ -1,5 +1,5 @@
 <template>
-    <RouterLink to="/" class="btn">Home</RouterLink>
+    <RouterLink to="/" class="btn btn-sm btn-accent">Home</RouterLink>
     <div class="card">
         <div class="card-body">
             <p class="card-title">Word Details</p>
@@ -26,7 +26,9 @@
                         </tbody>
                     </table>
                 </div>
-                <router-link to="/edit" class="btn right" @click="editWord">Edit</router-link>
+                <div class="flex justify-end">
+                    <router-link to="/edit" class="btn btn-warning btn-sm" @click="editWord">Edit Word</router-link>
+                </div>
             </div>
             <div v-else>
                 <p>Word not found</p>

@@ -5,7 +5,8 @@
                 <p class="card-title">Add New Word</p>
                 <!-- <button class="btn btn-primary btn-sm btn-secondary" @click="toggleMode">{{ mode === 'manual' ? 'Switch to Upload CSV Upload' : 'Switch to Manual Input' }}</button> -->
             </div>
-            <div id="uploadCSV" class="flex ">
+            <div id="uploadCSV" class="">
+                <p>Upload new words by CSV:</p>
                 <input class="file-input w-full max-w-xs" type="file" @change="onFileChange" ref="csvFileInput"
                     accept="text/csv" />
                 <button class="btn btn-success btn-sm" @click="uploadCSV">Upload CSV</button>
