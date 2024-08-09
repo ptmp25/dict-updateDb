@@ -6,8 +6,7 @@
         <div class="" v-if="word">
             <div class="flex items-center justify-between space-x-4">
                 <p for="newLang">Add Language:</p>
-
-                <select  class="select select-bordered w-8/12 dropdown-content menu" v-model="newLang" id="newLang">
+                <select class="select select-bordered w-8/12 dropdown-content menu" v-model="newLang" id="newLang">
                     <option value="" disabled selected>Choose new language you want to add</option>
                     <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
                 </select>
@@ -36,7 +35,8 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="flex justify-center items-center" v-for="(meaning, index) in meanings" :key="`delete-${code}-${index}`">
+                                <div class="flex justify-center items-center" v-for="(meaning, index) in meanings"
+                                    :key="`delete-${code}-${index}`">
                                     <button class="btn btn-error btn-outline btn-xs mt-2"
                                         @click="deleteMeaning(code, index)">Remove</button>
                                 </div>
@@ -78,7 +78,7 @@ export default {
         const id = route.params.id;
         const { word: fetchedWord, error, getDetails } = useDetails();
         const toast = useToast();
-        
+
         const { word, translateText } = useTranslate();
         onMounted(async () => {
             await getDetails(id);

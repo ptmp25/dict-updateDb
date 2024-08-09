@@ -5,15 +5,19 @@
   <div class="card bg-base-100 w-10/12 my-2.5 shadow-xl mx-auto">
     <div class="card-body">
       <button class="btn " @click="downloadCSV">Download CSV</button>
-      <label for="sort">Sort by:</label>
-      <select id="sort" class="input-field col s12" v-model="sortField" @change="sortList(sortField)">
-        <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
-      </select>
-      <label for="view">View</label>
-      <select name="view" class="input-field col s12" id="viewOption" v-model="viewOption">
-        <option v-for="(name, code) in languagesDict" :key="code" :value="code">{{ name }}</option>
-      </select>
-      <button class="btn" @click="viewWord">Add</button>
+      <div class="flex items-center space-x-4">
+        <label for="sort" class="mr-2">Sort by:</label>
+        <select id="sort" class="select select-bordered w-10/12"  v-model="sortField" @change="sortList(sortField)">
+          <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
+        </select>
+      </div>
+      <div class="flex items-center space-x-4">
+        <label for="view">Add language to list:</label>
+        <select name="view" class="select select-bordered w-7/12" id="viewOption" v-model="viewOption">
+          <option v-for="(name, code) in languagesDict" :key="code" :value="code">{{ name }}</option>
+        </select>
+        <button class="btn btn-success" @click="viewWord">Add</button>
+      </div>
       <div class="overflow-x-auto">
 
         <table class="table table-xs table-pin-rows ">

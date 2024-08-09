@@ -1,18 +1,20 @@
 <template>
     <div class="card bg-base-100 w-10/12 my-2.5  mx-auto shadow-xl">
         <div class="card-body">
-            <p class="card-title">Add New Word</p>
-            <button class="btn btn-primary" @click="toggleMode">{{ mode === 'manual' ? 'Switch to CSV Upload' : 'Switch to Manual Input' }}</button>
+            <div class="flex">
+                <p class="card-title">Add New Word</p>
+                <button class="btn btn-primary btn-sm btn-secondary" @click="toggleMode">{{ mode === 'manual' ? 'Switch to Upload CSV Upload' : 'Switch to Manual Input' }}</button>
+            </div>
             <div v-if="mode === 'manual'" id="manual">
-                <div class="">
+                <div class="flex items-center justify-between space-x-4">
                     <p for="newLang">Add Language:</p>
-                    <select v-model="newLang" id="newLang">
+                    <select class="select select-bordered w-8/12 dropdown-content menu" v-model="newLang" id="newLang">
                         <option value="" disabled selected>Choose new language you want to add</option>
                         <option v-for="(name, code) in languagesDict" :key="code" :value="code" option>{{ name }}</option>
                     </select>
-                </div>
-                <div class="flex justify-end">
-                    <button @click="addLanguage" class="btn btn-success btn-sm">Add</button>
+                    <div class="flex justify-end">
+                        <button @click="addLanguage" class="btn btn-success btn">Add</button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="table">
