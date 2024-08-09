@@ -43,14 +43,14 @@
                 </div>
               </td>
               <td>
-                <button v-if="editMode !== word.id" class="btn btn-xs btn blue"
+                <button v-if="editMode !== word.id" class="btn btn-xs btn-info"
                   @click="showDetails(word.id)">Details</button>
-                <button v-if="editMode !== word.id" class="btn btn-xs btn amber accent-2"
+                <button v-if="editMode !== word.id" class="btn btn-xs btn-warning"
                   @click="editWord(word.id)">Edit</button>
-                <button v-if="editMode === word.id" class="btn btn-xs" @click="saveWord(word.id)">Save</button>
-                <button v-if="editMode !== word.id" class="btn btn-xs btn red lighten-1 "
+                <button v-if="editMode === word.id" class="btn btn-xs btn-info" @click="saveWord(word.id)">Save</button>
+                <button v-if="editMode !== word.id" class="btn btn-xs btn-error"
                   @click="deleteWord(word.id)">Delete</button>
-                <button v-if="editMode === word.id" class="btn btn-xs" @click="cancelEdit">Cancel</button>
+                <button v-if="editMode === word.id" class="btn btn-xs btn-error" @click="cancelEdit">Cancel</button>
               </td>
             </tr>
           </tbody>

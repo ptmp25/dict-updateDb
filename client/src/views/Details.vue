@@ -1,32 +1,36 @@
 <template>
-    <div class="card"></div>
-    <div class="card-body">
-        <p class="card-title">Word Details</p>
-        <div class="words" v-if="word">
-            <div class="overflow-x-auto">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Language</th>
-                            <th>Meaning(s)</th>
-                        </tr>
-                    </thead>
-                    <tbody v-for="(meanings, code) in word.translations" :key="code">
-                        <tr v-if="meanings.length !== 0">
-                            <th>{{ languagesDict[code] }}</th>
-                            <td>
-                                <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-b">
-                                    <p>{{word.translations[code][index]}}</p>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    <RouterLink to="/" class="btn">Home</RouterLink>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-title">Word Details</p>
+            <div class="words" v-if="word">
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Language</th>
+                                <th>Meaning(s)</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="(meanings, code) in word.translations" :key="code">
+                            <tr v-if="meanings.length !== 0">
+                                <th>{{ languagesDict[code] }}</th>
+                                <td>
+                                    <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-b">
+                                        <p v-if="word.translations[code].length > 1">{{ index + 1 + "-" +
+                                            word.translations[code][index] }}</p>
+                                        <p v-else>{{ word.translations[code][index] }}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <router-link to="/edit" class="btn right" @click="editWord">Edit</router-link>
             </div>
-            <router-link to="/edit" class="btn right" @click="editWord">Edit</router-link>
-        </div>
-        <div v-else>
-            <p>Word not found</p>
+            <div v-else>
+                <p>Word not found</p>
+            </div>
         </div>
     </div>
 </template>

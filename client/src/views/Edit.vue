@@ -1,5 +1,7 @@
 <template>
     <div class="card-body">
+        <RouterLink to="/" class="btn">Home</RouterLink>
+        <RouterLink :to="`/details/${word.id}`" class="btn">Back</RouterLink>
         <p class="card-title">Edit Word</p>
         <div class="" v-if="word">
             <div class="flex items-center justify-between space-x-4">
