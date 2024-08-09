@@ -104,40 +104,41 @@ router.get("/read_list", async (req, res) => {
   }
 });
 
-
-router.get("/search", async (req, res) => {
-  console.log("searching words");
+// Define the /search route
+router.get('/search', async (req, res) => {
   try {
-    const query = req.query.q;
-    const language = req.query.language || "en"; // default to 'english' if not provided
+    const term = req.query.q || '';
+    const language = req.query.language || 'en'; // Default to English if not provided
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
 
-    const words = await Word.find({
-      [`translations.${language}`]: { $regex: query, $options: "i" },
+    // Construct the regex for case-insensitive search
+    const regex = new RegExp(term, 'i');
+
+    // Query the MongoDB collection
+    const results = await Word.find({
+      [`translations.${language}`]: { $elemMatch: { $regex: regex } }
     })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+      .skip()
+      .limit()
+      .lean(); // Use lean() to get plain JavaScript objects
 
+    // Get total count of matching documents
     const total = await Word.countDocuments({
-      [`translations.${language}`]: { $regex: query, $options: "i" },
+      [`translations.${language}`]: { $elemMatch: { $regex: regex } }
     });
-
-    if (!words.length) {
-      return res.status(404).json({ message: "No words found" });
-    }
-
+    // console.log("Total:", results);
     res.json({
-      result: Constant.OK_CODE,
-      data: words,
+      result: "OK",
+      data: results,
       page,
-      totalPages: Math.ceil(total / limit),
+      totalPages: 1,
+      total
     });
   } catch (err) {
-    console.error("Error searching words:", err);
-    res.status(500).json({ message: "Server Error" });
+    console.error("Error during search:", err);
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
 
@@ -197,11 +198,9 @@ router.patch("/update/:id", async (req, res) => {
     const wordId = req.params.id;
     const newWord = req.body;
 
-    const updatedWord = await Word.findOneAndUpdate(
-      { id: wordId },
-      newWord,
-      { new: true }
-    );
+    const updatedWord = await Word.findOneAndUpdate({ id: wordId }, newWord, {
+      new: true,
+    });
 
     if (!updatedWord) {
       res.status(404).json({ message: "Word not found" });
@@ -213,7 +212,6 @@ router.patch("/update/:id", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
-
 
 router.post("/upload_csv", upload.single("file"), async (req, res) => {
   const results = [];

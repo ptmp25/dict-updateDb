@@ -1,6 +1,6 @@
 <template>
   <Add @fetchList="fetchList" />
-  <Search :languageList="languageList" :words="words" @updateWords="updateWords"
+  <Search @fetchList="fetchList" :languageList="languageList" :words="words" @updateWords="updateWords"
     @updateLanguageList="updateLanguageList" />
   <div class="card bg-base-100 w-10/12 my-2.5 shadow-xl mx-auto">
     <div class="card-body">
@@ -163,10 +163,11 @@ export default {
         console.error('Error fetching list:', error.message);
       }
     },
-    updateWords(words) {
+    updateWords(words, currentPage, totalPages) {
+      console.log('updateWords', words);
       this.words = words;
-      this.currentPage = 1;
-
+      this.currentPage = currentPage;
+      this.totalPages = totalPages;
     },
     updateLanguageList(languageList) {
       this.languageList = languageList;

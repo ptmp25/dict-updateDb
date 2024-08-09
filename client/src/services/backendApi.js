@@ -87,15 +87,22 @@ export default {
     }
   },
   async searchWord(term, language, page, limit)  {
-    const response = await apiClient.get("/words/search", {
-      params: {
-        q: term,
-        language,
-        page,
-        limit,
-      },
-    });
-    return response;
+    try {
+
+      const response = await apiClient.get("/words/search", {
+        params: {
+          q: term,
+          language,
+          page,
+          limit,
+        },
+      });
+      // console.log(response);
+      return response;
+    } catch (error) {
+      console.error("Error searching word:", error);
+      throw error;
+    }
   },
   async saveWord(wordData) {
     try {

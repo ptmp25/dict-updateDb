@@ -7,10 +7,11 @@
       </button>
       <div v-if="isIllustrating" class="illustration-container">
         <div class="flex items-center space-x-4">
-          <select name="view" class="select select-bordered w-full max-w-xs">
+          <select v-model="language" name="view" class="select select-bordered w-full max-w-xs">
             <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
           </select>
-          <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word" class="input input-bordered w-full max-w-xs" />
+          <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word"
+            class="input input-bordered w-full max-w-xs" />
           <button @click="searchPost" class="btn btn-info">Search</button>
         </div>
         <p class="error">{{ message }}</p>
@@ -19,81 +20,88 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, onMounted, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import BackendAPI from '../services/backendApi';
 import languages from '../hooks/languages';
 
-const toast = useToast();
-
-const props = defineProps({
-  languageList: {
-    type: Array,
-    required: true
-  }, 
-  words: {
-    type: Array,
-    required: true
-  }
-});
-
-const searchTerm = ref('');
-const language = ref('en');
-const message = ref('');
-const languagesDict = languages;
-const isIllustrating = ref(false);
-const originalWords = ref([]);
-
-const emit = defineEmits(['updateWords', 'updateLanguageList']);
-
-const searchPost = async () => {
-  if (searchTerm.value === '') {
-    toast('Please enter a search term');
-  } else {
-    try {
-      const page = 1; // replace with your actual page number
-      const limit = 10; // replace with your actual limit
-      const response = await BackendAPI.searchWord(searchTerm.value, language.value, page, limit);
-      const results = response.data.data;
-      if (results && results.length > 0) {
-        emit('updateWords', results);
-        
-        message.value = '';
-      } else {
-        message.value = 'No results found';
-        emit('updateWords', []);
-      }
-    } catch (error) {
-      message.value = 'Error fetching search results';
-      emit('updateWords', []);
-      console.error('Error fetching search results:', error);
+export default {
+  props: {
+    languageList: {
+      type: Array,
+      required: true
+    },
+    words: {
+      type: Array,
+      required: true
     }
-  }
+  },
+  emits: ['fetchList', 'updateWords', 'updateLanguageList'],
+  setup() {
+    const toast = useToast();
+    const languagesDict = languages;
+    const language = ref('');
+    const searchTerm = ref('');
+    const message = ref('');
+    const isIllustrating = ref(false);
+
+    onMounted(async () => {
+      // languageList.value = Object.keys(languagesDict);
+    });
+
+    return {
+      toast,
+      languagesDict,
+      language,
+      searchTerm,
+      message,
+      isIllustrating,
+    };
+  },
+  methods: {
+    toggleIllustration() {
+      this.isIllustrating = !this.isIllustrating;
+      if (!this.isIllustrating) {
+        this.$emit('fetchList');
+      }
+    },
+    async searchPost() {
+      if (!this.language || !this.searchTerm) {
+        this.message = 'Please select a language and enter a search term';
+        return;
+      }
+      try {
+        const page = 1;
+        const limit = 10;
+        const response = await BackendAPI.searchWord(this.searchTerm, this.language, page, limit);
+        // console.log(response);
+        if (response && response.data) {
+          console.log(response.data.data);
+          this.$emit('updateWords', response.data.data, page, response.data.totalPages);
+          // this.$emit('updateLanguageList', this.language);
+          this.message = '';
+          this.toast.success('Search successful');
+        } else {
+          this.message = 'No results found';
+          this.toast.error('No results found');
+        }
+      } catch (error) {
+        this.message = 'An error occurred';
+        this.toast.error('An error occurred');
+        console.error(error);
+      }
+    },
+  },
+  watch: {
+    language() {
+      this.message = '';
+    },
+    searchTerm() {
+      this.message = '';
+    },
+  },
 };
-
-const toggleIllustration = () => {
-  isIllustrating.value = !isIllustrating.value;
-  if (isIllustrating.value) {
-    // Store the current words and clear them
-    originalWords.value = [...props.words];
-    emit('updateWords', []);
-  } else {
-    // Restore the original words
-    emit('updateWords', originalWords.value);
-  }
-};
-
-onMounted(() => {
-});
-
-watch(isIllustrating, (newValue) => {
-  if (!newValue) {
-    // Clear search term and message when illustration is turned off
-    searchTerm.value = '';
-    message.value = '';
-  }
-});
 </script>
 
 <style scoped>
