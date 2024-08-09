@@ -244,6 +244,11 @@ export default {
     async saveWord(id) {
       const word = this.words.find((word) => word.id === id);
       try {
+        // Remove empty translations
+        for (const code of this.languageList) {
+          word.translations[code] = word.translations[code].filter(translation => translation !== '');
+        }
+        // Update word
         const response = await BackendAPI.updateDetails(id, word);
         if (response.statusText !== "OK" || response.status !== 200) {
           if (data.code && data.code === 11000) {
