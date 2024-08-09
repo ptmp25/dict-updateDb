@@ -37,7 +37,7 @@
                 <div v-if="editMode === word.id">
                   <div v-for="(meaning, index) in word.translations[code]" :key="index" class="sameline">
                     <input type="text" v-model="word.translations[code][index]" :id="`input-${code}-${index}`"
-                      placeholder="Enter word..." autocomplete="off"
+                      placeholder="Enter word..." autocomplete="off" class="input w-full max-w-xs input-bordered"
                       @keyup.enter="translate(code, word.translations[code][index])" />
                   </div>
                 </div>
@@ -49,14 +49,14 @@
                 </div>
               </td>
               <td>
-                <button v-if="editMode !== word.id" class="btn btn-xs btn-info"
+                <button v-if="editMode !== word.id" class="btn btn-xs btn-info mx-2"
                   @click="showDetails(word.id)">Details</button>
-                <button v-if="editMode !== word.id" class="btn btn-xs btn-warning"
+                <button v-if="editMode !== word.id" class="btn btn-xs btn-warning mx-2"
                   @click="editWord(word.id)">Edit</button>
-                <button v-if="editMode === word.id" class="btn btn-xs btn-info" @click="saveWord(word.id)">Save</button>
-                <button v-if="editMode !== word.id" class="btn btn-xs btn-error"
+                <button v-if="editMode === word.id" class="btn btn-xs btn-info mx-2" @click="saveWord(word.id)">Save</button>
+                <button v-if="editMode !== word.id" class="btn btn-xs btn-error mx-2"
                   @click="deleteWord(word.id)">Delete</button>
-                <button v-if="editMode === word.id" class="btn btn-xs btn-error" @click="cancelEdit">Cancel</button>
+                <button v-if="editMode === word.id" class="btn btn-xs btn-error mx-2" @click="cancelEdit">Cancel</button>
               </td>
             </tr>
           </tbody>

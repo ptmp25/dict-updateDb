@@ -46,6 +46,7 @@
                 </table>
             </div>
             <div class="flex justify-end">
+                <p>Tips: Press Enter to use your first filled input as the reference for translation! ✨</p>
                 <button class="btn btn-success " @click="saveEdit">Submit</button>
             </div>
         </div>
@@ -112,6 +113,14 @@ export default {
         },
         async saveEdit() {
             try {
+                // Check if any translation is empty
+                const isEmptyTranslation = Object.values(this.word.translations).some(translation => translation.some(meaning => meaning === ''));
+                if (isEmptyTranslation) {
+                    console.log('Please fill in all translations');
+                    this.toast.warning('Please fill in all translations');
+                    return;
+                }
+
                 const response = await backendApi.updateDetails(this.id, this.word);
                 const data = response.data;
                 console.log(response);

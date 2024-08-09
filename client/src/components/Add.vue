@@ -3,9 +3,14 @@
         <div class="card-body">
             <div class="flex">
                 <p class="card-title">Add New Word</p>
-                <button class="btn btn-primary btn-sm btn-secondary" @click="toggleMode">{{ mode === 'manual' ? 'Switch to Upload CSV Upload' : 'Switch to Manual Input' }}</button>
+                <!-- <button class="btn btn-primary btn-sm btn-secondary" @click="toggleMode">{{ mode === 'manual' ? 'Switch to Upload CSV Upload' : 'Switch to Manual Input' }}</button> -->
             </div>
-            <div v-if="mode === 'manual'" id="manual">
+            <div id="uploadCSV" class="flex ">
+                <input class="file-input w-full max-w-xs" type="file" @change="onFileChange" ref="csvFileInput"
+                    accept="text/csv" />
+                <button class="btn btn-success btn-sm" @click="uploadCSV">Upload CSV</button>
+            </div>
+            <div id="manual">
                 <div class="flex items-center justify-between space-x-4">
                     <p for="newLang">Add Language:</p>
                     <select class="select select-bordered w-8/12 dropdown-content menu" v-model="newLang" id="newLang">
@@ -32,7 +37,7 @@
                                     <div v-for="(meaning, index) in meanings" :key="index" class="mt-2 border-bottom">
                                         <input type="text" v-model="word.translations[code][index]"
                                             :id="`input-${code}-${index}`" placeholder="Enter word..." autocomplete="off"
-                                            class="input w-full max-w-xs"
+                                            class="input w-full max-w-xs input-bordered"
                                             @keyup.enter="translateText(code, word.translations[code][index])" required />
                                     </div>
                                 </td>
@@ -46,13 +51,10 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="flex justify-between ">
+                <div class="flex justify-end ">
+                    <p>Tips: Press Enter to use your first filled input as the reference for translation! ✨</p>
                     <button class="btn btn-success " @click="create">Submit</button>
                 </div>
-            </div>
-            <div v-else id="uploadCSV" class="flex ">
-                <input class="file-input w-full max-w-xs" type="file" @change="onFileChange" ref="csvFileInput" />
-                <button class="btn btn-success btn-sm" @click="uploadCSV">Upload CSV</button>
             </div>
         </div>
     </div>
@@ -130,24 +132,19 @@ export default {
             }
             try {
                 const response = await backendApi.saveWord(this.word);
-                const data = response.data;
                 if (response.result !== "OK" || response.status !== 200) {
-                    if (data.code && data.code === 11000) {
-                        this.toast.error("Duplicated ID");
-                        console.error(data.message)
+                    if (response.code && response.code === 11000) {
+                        this.toast.error(response.message);
+                        console.error(response.message)
                     } else {
                         this.toast.error("An error occurred while creating the word");
-                        console.error(data.message)
+                        console.error(response.message)
                     }
                 } else {
-                    this.word = {
-                        translations: {
-                            en: [''],
-                            de: [''],
-                            fr: [''],
-                            vi: [''],
-                        }
-                    };
+                    const data = response.data;
+                    for (const [key, value] of Object.entries(this.word.translations)) {
+                        this.word.translations[key] = [''];
+                    }             
                     // Emit the event to update the list
                     this.$emit('fetchList');
                     this.toast.success("New word created successfully");

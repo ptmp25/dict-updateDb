@@ -20,6 +20,17 @@ router.post("/save", async (req, res) => {
     // console.log("Received wordData:", wordData);
 
     const newWord = new Word(wordData);
+    const existingWord = await Word.findOne({
+      "translations.en": wordData.translations.en,
+    }).exec();
+    if (existingWord) {
+      return res.json({
+        status: 200,
+        result: Constant.FAILED_CODE,
+        code: 11000,
+        message: "Word already exists",
+      });
+    }
     newWord.id = uuidv4(); // Assign a unique ID to the new instance
     // console.log("Instance before save:", newWord); // Check what the new instance looks like
 
@@ -36,6 +47,7 @@ router.post("/save", async (req, res) => {
     res.status(500).json({
       result: Constant.FAILED_CODE,
       message: Constant.SERVER_ERR,
+      code: 500,
       err: error,
     });
   }
@@ -105,20 +117,20 @@ router.get("/read_list", async (req, res) => {
 });
 
 // Define the /search route
-router.get('/search', async (req, res) => {
+router.get("/search", async (req, res) => {
   try {
-    const term = req.query.q || '';
-    const language = req.query.language || 'en'; // Default to English if not provided
+    const term = req.query.q || "";
+    const language = req.query.language || "en"; // Default to English if not provided
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
 
     // Construct the regex for case-insensitive search
-    const regex = new RegExp(term, 'i');
+    const regex = new RegExp(term, "i");
 
     // Query the MongoDB collection
     const results = await Word.find({
-      [`translations.${language}`]: { $elemMatch: { $regex: regex } }
+      [`translations.${language}`]: { $elemMatch: { $regex: regex } },
     })
       .skip()
       .limit()
@@ -126,7 +138,7 @@ router.get('/search', async (req, res) => {
 
     // Get total count of matching documents
     const total = await Word.countDocuments({
-      [`translations.${language}`]: { $elemMatch: { $regex: regex } }
+      [`translations.${language}`]: { $elemMatch: { $regex: regex } },
     });
     // console.log("Total:", results);
     res.json({
@@ -134,7 +146,7 @@ router.get('/search', async (req, res) => {
       data: results,
       page,
       totalPages: 1,
-      total
+      total,
     });
   } catch (err) {
     console.error("Error during search:", err);

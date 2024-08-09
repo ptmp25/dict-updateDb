@@ -1,10 +1,12 @@
 <template>
   <div class="card bg-base-100  w-10/12 my-2.5 mx-auto shadow-xl">
     <div class="card-body">
-      <p class="card-title">Search</p>
-      <button @click="toggleIllustration" class="btn">
-        {{ isIllustrating ? 'Hide Illustration' : 'Show Illustration' }}
-      </button>
+      <div class="flex items-center">
+        <p class="card-title">Search</p>
+        <button @click="toggleIllustration" class="btn btn-sm">
+          {{ isIllustrating ? 'Close Search' : 'Search' }}
+        </button>
+      </div>
       <div v-if="isIllustrating" class="illustration-container">
         <div class="flex items-center space-x-4">
           <select v-model="language" name="view" class="select select-bordered w-full max-w-xs">
