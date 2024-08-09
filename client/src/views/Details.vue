@@ -27,6 +27,7 @@
                     </table>
                 </div>
                 <div class="flex justify-end">
+                    <button class="btn btn-error mx-3 btn-sm" @click="deleteWord">Delete Word</button>
                     <router-link to="/edit" class="btn btn-warning btn-sm" @click="editWord">Edit Word</router-link>
                 </div>
             </div>
@@ -71,6 +72,20 @@ export default {
         });
 
         return { word, editWord, error };
+    },
+    methods: {
+        async deleteWord() {
+            if (!confirm('Are you sure you want to delete this word?')) {
+                return;
+            }
+            if (this.word) {
+                const response = await backendApi.deleteWord(this.word.id);
+                if (response) {
+                    router.push('/');
+                    router.reload();
+                }
+            }
+        },
     },
 };
 </script>

@@ -54,7 +54,9 @@
                 </div>
                 <div class="flex justify-end ">
                     <p>Tips: Press Enter to use your first filled input as the reference for translation! ✨</p>
-                    <button class="btn btn-success " @click="create">Submit</button>
+                    <button class="btn btn-error mx-3 btn-sm" @click="reset">Reset</button>
+                    <button class="btn btn-warning mx-3 btn-sm" @click="empty">Empty Input</button>
+                    <button class="btn btn-success mx-3 btn-sm" @click="create">Submit</button>
                 </div>
             </div>
         </div>
@@ -143,18 +145,33 @@ export default {
                     }
                 } else {
                     const data = response.data;
-                    for (const [key, value] of Object.entries(this.word.translations)) {
-                        this.word.translations[key] = [''];
-                    }             
                     // Emit the event to update the list
                     this.$emit('fetchList');
                     this.toast.success("New word created successfully");
-
+                    this.empty();
                 }
             } catch (error) {
                 this.toast.error("An error occurred while creating the word");
                 console.error(error);
             }
+        },
+        empty() {
+            for (const [key, value] of Object.entries(this.word.translations)) {
+                // this.word.translations[key] = [''];
+                for (let i = 0; i < value.length; i++) {
+                    this.word.translations[key][i] = '';
+                }
+            }
+        },
+        reset() {
+            this.word = {
+                translations: {
+                    en: [''],
+                    de: [''],
+                    fr: [''],
+                    vi: [''],
+                }
+            };
         },
         onFileChange(event) {
             this.csvFile = event.target.files[0];

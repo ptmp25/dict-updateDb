@@ -86,7 +86,6 @@ export default {
             word.value = fetchedWord.value;
             console.log(word.value);
         });
-
         return { id, word, toast, translateText };
     },
     methods: {

@@ -20,32 +20,32 @@ router.post("/save", async (req, res) => {
     // console.log("Received wordData:", wordData);
 
     const newWord = new Word(wordData);
-    for (const language in wordData.translations) {
-      for( const word of wordData.translations[language]){
-        const existingWord = await Word.findOne({
-          [`translations.${language}`]: word,
-        }).exec();
-        if (existingWord) {
-          return res.json({
-            status: 200,
-            result: Constant.FAILED_CODE,
-            code: 11000,
-            message: "Word already exists",
-          });
-        }
+    // for (const language in wordData.translations) {
+    for (const word of wordData.translations['en']) {
+      const existingWord = await Word.findOne({
+        [`translations.en`]: word,
+      }).exec();
+      if (existingWord) {
+        return res.json({
+          status: 200,
+          result: Constant.FAILED_CODE,
+          code: 11000,
+          message: "Word already exists",
+        });
       }
     }
+    // }
     // const existingWord = await Word.findOne({
     //   "translations.en": wordData.translations.en,
     // }).exec();
-    if (existingWord) {
-      return res.json({
-        status: 200,
-        result: Constant.FAILED_CODE,
-        code: 11000,
-        message: "Word already exists",
-      });
-    }
+    // if (existingWord) {
+    //   return res.json({
+    //     status: 200,
+    //     result: Constant.FAILED_CODE,
+    //     code: 11000,
+    //     message: "Word already exists",
+    //   });
+    // }
     newWord.id = uuidv4(); // Assign a unique ID to the new instance
     // console.log("Instance before save:", newWord); // Check what the new instance looks like
 
@@ -333,9 +333,9 @@ router.get("/export_csv", async (req, res) => {
 
     const parser = new Parser(opts);
     const csv = parser.parse(words);
-
     res.header("Content-Type", "text/csv");
-    res.attachment("words.csv");
+    console.log("CSV:", csv);
+    // res.attachment("words.csv");
     res.send(csv);
   } catch (err) {
     console.error("Error exporting words to CSV:", err);

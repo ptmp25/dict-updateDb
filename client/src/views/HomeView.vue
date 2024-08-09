@@ -7,17 +7,17 @@
       <button class="btn " @click="downloadCSV">Download CSV</button>
       <div class="flex items-center space-x-4">
         <label for="sort" class="mr-2">Sort by:</label>
-        <select id="sort" class="select select-bordered w-10/12" v-model="sortField" @change="sortList(sortField)">
+        <select id="sort" class="select select-bordered w-1/4" v-model="sortField" @change="sortList(sortField)">
           <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
         </select>
-      </div>
-      <div class="flex items-center space-x-4">
         <label for="view">Add language to list:</label>
-        <select name="view" class="select select-bordered w-7/12" id="viewOption" v-model="viewOption">
+        <select name="view" class="select select-bordered w-1/4" id="viewOption" v-model="viewOption">
           <option v-for="(name, code) in languagesDict" :key="code" :value="code">{{ name }}</option>
         </select>
         <button class="btn btn-success" @click="viewWord">Add</button>
       </div>
+      <!-- <div class="flex items-center space-x-4">
+      </div> -->
       <div class="overflow-x-auto">
 
         <table class="table table-xs table-pin-rows ">
@@ -86,6 +86,7 @@ import languages from "../hooks/languages";
 import Add from '../components/Add.vue';
 import Search from '../components/Search.vue';
 import useTranslate from "../hooks/useTranslate";
+import backendApi from "../services/backendApi";
 
 export default {
   data() {
@@ -277,18 +278,29 @@ export default {
         await this.fetchList();
       }
     },
-    downloadCSV() {
-      const csv = this.words.map((word) => {
-        const translations = this.languageList.map((code) => word.translations[code].join(','));
-        return `${word.id},${translations.join(',')}`;
-      }).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'words.csv';
-      a.click();
-    },
+    async downloadCSV() {
+      try {
+        const response = await backendApi.downloadCSV(
+          `/words/export_csv?languages=${this.languageList}`,
+          {
+            responseType: "blob",
+          }
+        );
+
+        const blob = new Blob([response.data], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "words.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error exporting CSV:", error);
+        this.toast.error("Error downloading CSV");
+      }
+    }
   },
   computed: {
     pageNumbers() {
