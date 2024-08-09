@@ -9,9 +9,11 @@
       </div>
       <div v-if="isIllustrating" class="illustration-container">
         <div class="flex items-center space-x-4">
+          <p>Language:</p>
           <select v-model="language" name="view" class="select select-bordered w-full max-w-xs">
             <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
           </select>
+          <p>Word:</p>
           <input type="text" v-model="searchTerm" @keyup.enter="searchPost" placeholder="Search for a word"
             class="input input-bordered w-full max-w-xs" />
           <button @click="searchPost" class="btn btn-info">Search</button>
