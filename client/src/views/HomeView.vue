@@ -23,8 +23,8 @@
         <table class="table table-xs table-pin-rows ">
           <thead>
             <tr>
-              <th v-for="(code, index) in languageList" class="text-xl" :key="code">{{ languagesDict[code] }}
-                <button @click="removeCode(index)" v-if="languageList.length > 2">-</button>
+              <th v-for="(code, index) in languageList" class="text-xl cursor-pointer" :key="code" @click="sortList(code)">{{ languagesDict[code] }}
+                <button class="btn btn-outline btn-error btn-xs" @click="removeCode(index)" v-if="languageList.length > 2">-</button>
               </th>
               <th class="text-xl">Actions</th>
             </tr>
@@ -141,10 +141,10 @@ export default {
             }
           });
         } else {
-          console.error('Error fetching list:', response.data.message);
+          console.error('Error fetching list:', response.message);
         }
       } catch (error) {
-        console.error('Error fetching list:', error);
+        console.error('Error fetching list:', error.message);
       }
     },
     updateWords(words) {
@@ -172,13 +172,20 @@ export default {
           sortField,
           this.viewOption
         );
-        if (response.data.data) {
+        if (response && response.data) {
           this.words = response.data.words;
           this.totalPages = response.data.totalPages;
-          this.sortField = sortField;
-          this.currentPage = 1; // Reset to first page when sorting
+
+          // Update URL
+          this.$router.push({
+            query: {
+              ...this.$route.query,
+              page: this.currentPage,
+              sort: this.sortField
+            }
+          }); // Reset to first page when sorting
         } else {
-          console.error('Error sorting list:', response.data.message);
+          console.error('Error sorting list:', response);
         }
       } catch (error) {
         console.error('Error sorting list:', error);

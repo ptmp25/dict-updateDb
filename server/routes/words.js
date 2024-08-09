@@ -46,20 +46,53 @@ router.get("/read_list", async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
-    const sortField = req.query.sortField
-      ? `translations.${req.query.sortField}`
-      : "translations.en"; // default to 'English' translation if not provided
-    console.log("sortField:", sortField);
+    const language = req.query.sortField || "en"; // Default to English if no sortField is provided
+
+    // Debugging logs
+    console.log("Page:", page);
+    console.log("Limit:", limit);
+    console.log("Skip:", skip);
+    console.log("Sort Field:", language);
+
+    // Use aggregation to handle sorting by language and then by id
     const total = await Word.countDocuments();
 
-    const words = await Word.find()
-      .sort({ [sortField]: 1 }) // use the sortField dynamically
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    const words = await Word.aggregate([
+      {
+        $addFields: {
+          hasLanguage: {
+            $cond: [
+              {
+                $gt: [
+                  { $size: { $ifNull: [`$translations.${language}`, []] } },
+                  0,
+                ],
+              },
+              1,
+              0,
+            ],
+          },
+          firstMeaning: {
+            $arrayElemAt: [{ $ifNull: [`$translations.${language}`, []] }, 0],
+          },
+        },
+      },
+      {
+        $sort: {
+          hasLanguage: -1, // Sort by presence of language (descending)
+          firstMeaning: 1, // Sort by the first meaning in the specified language
+          id: 1, // Finally, sort by id
+        },
+      },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    // Debugging logs for aggregation results
+    console.log("Words:", words);
 
     res.json({
-      result: "OK", // Ensure this constant is correctly defined
+      result: "OK",
       total,
       page,
       totalPages: Math.ceil(total / limit),
@@ -70,6 +103,7 @@ router.get("/read_list", async (req, res) => {
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
+
 
 router.get("/search", async (req, res) => {
   console.log("searching words");
