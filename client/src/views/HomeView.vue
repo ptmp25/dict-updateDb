@@ -63,7 +63,7 @@
           </tbody>
         </table>
       </div>
-      <p>Tip: Click a language to sort the list.</p>
+      <p>✨Tip: Click a language to sort the list.</p>
       <div class="join flex justify-center">
         <button class="join-item btn" v-show="currentPage !== 1" @click="goToPage(currentPage - 1)">Previous</button>
         <button class="join-item btn" v-for="page in pageNumbers" :key="page" @click="goToPage(page)"

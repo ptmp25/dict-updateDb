@@ -1,8 +1,10 @@
 <template>
     <div class="card-body">
-        <RouterLink to="/" class="btn">Home</RouterLink>
+        <div class="flex items-center space-x-2">
+            <RouterLink to="/" class="btn btn-info btn-sm">Home</RouterLink>
+            <RouterLink :to="`/details/${word.id}`" class="btn btn-info btn-sm">Back</RouterLink>
+        </div>
         <div class="" v-if="word">
-        <RouterLink :to="`/details/${word.id}`" class="btn">Back</RouterLink>
         <p class="card-title">Edit Word</p>
             <div class="flex items-center justify-between space-x-4">
                 <p for="newLang">Add Language:</p>
@@ -46,7 +48,7 @@
                 </table>
             </div>
             <div class="flex justify-end">
-                <p>Tips: Press Enter to use your first filled input as the reference for translation! ✨</p>
+                <p>✨Tips: Press Enter to use your first filled input as the reference for translation! ✨</p>
                 <button class="btn btn-success " @click="saveEdit">Submit</button>
             </div>
         </div>

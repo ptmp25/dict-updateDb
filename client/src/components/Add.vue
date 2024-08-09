@@ -53,7 +53,7 @@
                     </table>
                 </div>
                 <div class="flex justify-end ">
-                    <p>Tips: Press Enter to use your first filled input as the reference for translation! ✨</p>
+                    <p>✨Tips: Press Enter to use your first filled input as the reference for translation!</p>
                     <button class="btn btn-error mx-3 btn-sm" @click="reset">Reset</button>
                     <button class="btn btn-warning mx-3 btn-sm" @click="empty">Empty Input</button>
                     <button class="btn btn-success mx-3 btn-sm" @click="create">Submit</button>

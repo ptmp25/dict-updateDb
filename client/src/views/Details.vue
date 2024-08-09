@@ -1,7 +1,9 @@
 <template>
-    <RouterLink to="/" class="btn btn-sm btn-accent">Home</RouterLink>
     <div class="card">
         <div class="card-body">
+            <div class="flex items-center space-x-2">
+                <RouterLink to="/" class="btn btn-info btn-sm">Home</RouterLink>
+            </div>
             <p class="card-title">Word Details</p>
             <div class="words" v-if="word">
                 <div class="overflow-x-auto">
