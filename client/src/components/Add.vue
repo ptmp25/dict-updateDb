@@ -46,13 +46,13 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="flex justify-end">
+                <div class="flex justify-between ">
                     <button class="btn btn-success " @click="create">Submit</button>
                 </div>
             </div>
-            <div v-else id="uploadCSV">
-                <input class="upload" type="file" @change="onFileChange" ref="csvFileInput" />
-                <button class="btn" @click="uploadCSV">Upload CSV</button>
+            <div v-else id="uploadCSV" class="flex ">
+                <input class="file-input w-full max-w-xs" type="file" @change="onFileChange" ref="csvFileInput" />
+                <button class="btn btn-success btn-sm" @click="uploadCSV">Upload CSV</button>
             </div>
         </div>
     </div>
@@ -172,6 +172,7 @@ export default {
 
             try {
                 const response = await backendApi.uploadCSV(formData);
+                this.$emit('fetchList');
                 this.toast.success("CSV uploaded successfully");
             } catch (error) {
                 this.toast.error(error.response?.data?.message || 'An error occurred');

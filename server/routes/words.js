@@ -89,7 +89,7 @@ router.get("/read_list", async (req, res) => {
     ]);
 
     // Debugging logs for aggregation results
-    console.log("Words:", words);
+    // console.log("Words:", words);
 
     res.json({
       result: "OK",

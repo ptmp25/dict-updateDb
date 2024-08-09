@@ -7,7 +7,7 @@
       <button class="btn " @click="downloadCSV">Download CSV</button>
       <div class="flex items-center space-x-4">
         <label for="sort" class="mr-2">Sort by:</label>
-        <select id="sort" class="select select-bordered w-10/12"  v-model="sortField" @change="sortList(sortField)">
+        <select id="sort" class="select select-bordered w-10/12" v-model="sortField" @change="sortList(sortField)">
           <option v-for="(code, index) in languageList" :key="code" :value="code">{{ languagesDict[code] }}</option>
         </select>
       </div>
@@ -23,8 +23,10 @@
         <table class="table table-xs table-pin-rows ">
           <thead>
             <tr>
-              <th v-for="(code, index) in languageList" class="text-xl cursor-pointer" :key="code" @click="sortList(code)">{{ languagesDict[code] }}
-                <button class="btn btn-outline btn-error btn-xs" @click="removeCode(index)" v-if="languageList.length > 2">-</button>
+              <th v-for="(code, index) in languageList" class="text-xl cursor-pointer" :key="code"
+                @click="sortList(code)">{{ languagesDict[code] }}
+                <button class="btn btn-outline btn-error btn-xs" @click="removeCode(index)"
+                  v-if="languageList.length > 2">-</button>
               </th>
               <th class="text-xl">Actions</th>
             </tr>
@@ -41,8 +43,8 @@
                 </div>
                 <div v-else>
                   <template v-for="(value, index) in word.translations[code]">
-                    <p v-if="word.translations[code].length > 1">{{ index + 1 }}. {{ value }}</p>
-                    <p v-else>{{ value }}</p>
+                    <p class="text-lg" v-if="word.translations[code].length > 1">{{ index + 1 }}. {{ value }}</p>
+                    <p class="text-lg" v-else>{{ value }}</p>
                   </template>
                 </div>
               </td>
@@ -119,8 +121,22 @@ export default {
     Add,
     Search,
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        // Fetch new data when the route changes
+        this.fetchList();
+      },
+    },
+  },
   methods: {
     async fetchList() {
+
+      // If currentPage is greater than totalPages, reset it to totalPages
+      if (this.currentPage > this.totalPages || this.currentPage === 0) {
+        this.currentPage = this.totalPages;
+      }
       try {
         const response = await BackendAPI.readList(
           this.currentPage,
@@ -176,14 +192,19 @@ export default {
           this.words = response.data.words;
           this.totalPages = response.data.totalPages;
 
+          // If currentPage is greater than totalPages, reset it to totalPages
+          if (this.currentPage > this.totalPages) {
+            this.currentPage = this.totalPages;
+          }
+
           // Update URL
           this.$router.push({
             query: {
               ...this.$route.query,
-              page: this.currentPage,
+              page: 1,
               sort: this.sortField
             }
-          }); // Reset to first page when sorting
+          });
         } else {
           console.error('Error sorting list:', response);
         }
@@ -202,7 +223,7 @@ export default {
     },
     async showDetails(id) {
       try {
-        router.push({ name: 'details', params: { id } });
+        this.$router.push({ name: 'details', params: { id } });
       } catch (error) {
         console.error('Error navigating to details:', error);
       }
