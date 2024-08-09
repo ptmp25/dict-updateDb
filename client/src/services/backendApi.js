@@ -64,9 +64,10 @@ export default {
   async downloadCSV(languages) {
     try {
       const response = await apiClient.get(
-        `/words/export_csv?languages=${languages}`,
+        `/words/export_csv`,
         {
           responseType: "blob",
+          languages: languages,
         }
       );
 
