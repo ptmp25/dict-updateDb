@@ -1,13 +1,14 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import Header from './components/Header.vue'
 </script>
 
 <template>
-  <!-- <header>
+  <header>
     <Header />
-  </header> -->
+  </header>
   <RouterView />
-  <footer class="footer bg-neutral text-neutral-content items-center p-4">
+  <!-- <footer class="footer bg-neutral text-neutral-content items-center p-4">
     <aside class="grid-flow-col items-center">
       <p>Copyright © 2024 - All right reserved</p>
     </aside>
@@ -17,5 +18,5 @@ import { RouterLink, RouterView } from 'vue-router'
         <router-link to="/about">About</router-link>
       </a>
     </nav>
-  </footer>
+  </footer> -->
 </template>

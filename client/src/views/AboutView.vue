@@ -1,8 +1,16 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
-  </div>
+      <h1>About {{ username }}</h1>
+      <p>This page is authored by {{ username }}. Welcome to my profile where I demonstrate my coding skills and projects!</p>
+   </div>
 </template>
+
+<script>
+export default {
+  name: "UserAboutPage",
+  props: ['username'], // Accept username as a prop
+}
+</script>
 
 <style>
 @media (min-width: 1024px) {

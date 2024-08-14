@@ -1,9 +1,9 @@
 <template>
     <div class="card-body">
-        <div class="flex items-center space-x-2">
+        <!-- <div class="flex items-center space-x-2">
             <RouterLink to="/" class="btn btn-info btn-sm">Home</RouterLink>
             <RouterLink :to="`/details/${word.id}`" class="btn btn-info btn-sm">Back</RouterLink>
-        </div>
+        </div> -->
         <div class="" v-if="word">
         <p class="card-title">Edit Word</p>
             <div class="flex items-center justify-between space-x-4">
