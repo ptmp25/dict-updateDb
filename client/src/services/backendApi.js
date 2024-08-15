@@ -1,4 +1,4 @@
-// apiClient.js
+// BackendApi.js
 import axios from "axios";
 
 const apiClient = axios.create({
@@ -33,6 +33,23 @@ export default {
       throw error;
     }
   },
+  async searchWord(term, language, page, limit) {
+    try {
+      const response = await apiClient.get("/words/search", {
+        params: {
+          q: term,
+          language,
+          page,
+          limit,
+        },
+      });
+      // console.log(response);
+      return response;
+    } catch (error) {
+      console.error("Error searching word:", error);
+      throw error;
+    }
+  },
   async getDetails(id) {
     try {
       const response = await apiClient.get(`/words/details/${id}`);
@@ -63,13 +80,10 @@ export default {
   },
   async downloadCSV(languages) {
     try {
-      const response = await apiClient.get(
-        `/words/export_csv`,
-        {
-          responseType: "blob",
-          languages: languages,
-        }
-      );
+      const response = await apiClient.get(`/words/export_csv`, {
+        responseType: "blob",
+        languages: languages,
+      });
 
       const blob = new Blob([response.data], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
@@ -84,24 +98,6 @@ export default {
       return { success: true };
     } catch (error) {
       console.error("Error exporting CSV:", error);
-      throw error;
-    }
-  },
-  async searchWord(term, language, page, limit)  {
-    try {
-
-      const response = await apiClient.get("/words/search", {
-        params: {
-          q: term,
-          language,
-          page,
-          limit,
-        },
-      });
-      // console.log(response);
-      return response;
-    } catch (error) {
-      console.error("Error searching word:", error);
       throw error;
     }
   },

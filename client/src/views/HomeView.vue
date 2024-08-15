@@ -261,6 +261,10 @@ export default {
         this.toast.error('Error updating word');
       }
     },
+    cancelEdit() {
+      this.editMode = null;
+      this.fetchList();
+    },
     async deleteWord(id) {
       if (!confirm('Are you sure you want to delete this word?')) {
         return;
@@ -272,10 +276,6 @@ export default {
         .catch((error) => {
           console.error('Error deleting word:', error);
         });
-    },
-    cancelEdit() {
-      this.editMode = null;
-      this.fetchList();
     },
     async goToPage(page) {
       if (page !== '...' && page !== this.currentPage) {

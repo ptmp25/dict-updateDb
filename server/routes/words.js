@@ -204,22 +204,6 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
-router.get("/details/:id", async (req, res) => {
-  try {
-    const wordId = req.params.id;
-    const word = await Word.findOne({ id: wordId }).exec();
-
-    if (!word) {
-      res.status(404).json({ message: "Word not found" });
-    } else {
-      res.render("words/details", { title: "Word Details", word });
-    }
-  } catch (err) {
-    console.error("Error fetching word details:", err);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
-
 router.patch("/update/:id", async (req, res) => {
   try {
     const wordId = req.params.id;

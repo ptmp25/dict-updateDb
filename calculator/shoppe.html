@@ -1,0 +1,82 @@
+<html>
+  <head>
+    <title>Shopee</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <style>
+      .thumb img {
+        width: 150px;
+      }
+      .mainImg {
+        width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="vue_app">
+      <table>
+        <tr>
+          <td colspan="3">
+            <img class="mainImg" v-bind:src="imgs[indexImg]" />
+          </td>
+        </tr>
+        <tr class="thumb">
+          <td>
+            <img
+              src="https://images.pexels.com/photos/1294886/pexels-photo-1294886.jpeg" />
+          </td>
+          <td>
+            <img
+              src="https://images.pexels.com/photos/1366998/pexels-photo-1366998.jpeg" />
+          </td>
+          <td>
+            <img
+              src="https://images.pexels.com/photos/3510/hand-apple-iphone-smartphone.jpg" />
+          </td>
+        </tr>
+      </table>
+      <br /><br />
+      <input v-on:change="indexImg=0" type="radio" name="rdo_style" checked="checked" id="phone1" />
+      <label for="phone1">Phone 1</label><br />
+      <input v-on:change="indexImg=1" type="radio" name="rdo_style" id="phone2" />
+      <label for="phone2">Phone 2</label><br />
+      <input v-on:change="indexImg=2" type="radio" name="rdo_style" id="phone3" />
+      <label for="phone3">Phone 3</label><br />
+
+      <br /><br />
+      <div>Quantity: <input type="text" value="1" v-model="inpText" /></div>
+      <input type="button" value="Add to cart" @click="calc()" /><br />
+      <div>Cart: {{cart}}</div>
+    </div>
+
+    <script>
+      const app = new Vue({
+        el: "#vue_app",
+        data: {
+          inpText: 0,
+          imgs: [
+            "https://images.pexels.com/photos/1294886/pexels-photo-1294886.jpeg",
+            "https://images.pexels.com/photos/1366998/pexels-photo-1366998.jpeg",
+            "https://images.pexels.com/photos/3510/hand-apple-iphone-smartphone.jpg",
+          ],
+          indexImg: 0,
+          cart: 0,
+        },
+        methods: {
+          calc() {
+            if (!isNaN(parseInt(app.inpText))) { 
+              // Code to execute if app.inpText is an integer 
+              app.cart += parseInt(app.inpText) ? parseInt(app.inpText) > 0 : 0;
+            } else { 
+              // Code to execute if app.inpText is not an integer 
+              alert("Please enter a valid number(natural number only)");
+            }
+          },
+        },
+      });
+
+      // function calc() {
+      //   app.cart += parseInt(app.inpText);
+      // }
+    </script>
+  </body>
+</html>
